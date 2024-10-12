@@ -2,10 +2,7 @@ from fastapi import FastAPI
 
 
 def create_app():
-    app = FastAPI()
-    @app.get("/testing")
-    def testing():
-        return {"status": 200}
+    app = FastAPI
     return app
 
 

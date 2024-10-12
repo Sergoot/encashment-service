@@ -7,17 +7,17 @@ services:
       dockerfile: Dockerfile
     container_name: bff
     environment:
-      - BFF_ENCASHMENT_HOST=encashment
+      - BFF_ATM_HOST=atm
       - BFF_ALGO_HOST=algo
     ports:
       - $BFF_PORT:$BFF_PORT
-  encashment:
+  atm:
     build:
-      context: encashment
+      context: atm
       dockerfile: Dockerfile
-    container_name: encashment
+    container_name: atm
     ports:
-      - $ENCASHMENT_PORT:$ENCASHMENT_PORT
+      - $ATM_PORT:$ATM_PORT
   algo:
     build:
       context: algo

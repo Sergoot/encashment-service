@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     
-    encashment_host: str
+    atm_host: str
     algo_host: str
     
     model_config = SettingsConfigDict(
