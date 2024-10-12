@@ -6,19 +6,22 @@ services:
       context: bff
       dockerfile: Dockerfile
     container_name: bff
+    environment:
+      - BFF_ENCASHMENT_HOST=encashment
+      - BFF_ALGO_HOST=algo
     ports:
-      - 9001:9001
+      - $BFF_PORT:$BFF_PORT
   encashment:
     build:
       context: encashment
       dockerfile: Dockerfile
     container_name: encashment
     ports:
-      - 9002:9002
+      - $ENCASHMENT_PORT:$ENCASHMENT_PORT
   algo:
     build:
       context: algo
       dockerfile: Dockerfile
     container_name: algo
     ports:
-      - 9003:9003
+      - $ALGO_PORT:$ALGO_PORT
