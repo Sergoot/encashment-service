@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "algo"
+version = "0.1.0"
+description = ""
+authors = ["Sergoot <sergey.lyutavin22@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.2"
+uvicorn = "^0.31.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
