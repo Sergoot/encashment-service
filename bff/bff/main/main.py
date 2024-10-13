@@ -17,8 +17,8 @@ def as_dependency(dependency: Any) -> Callable:
 def create_app(settings: Settings):
     app = FastAPI()
     
-    atm_client = api_client_factory(settings.atm_host)
-    algo_client = api_client_factory(settings.algo_host)
+    atm_client = api_client_factory(settings.atm_host, settings.atm_port)
+    algo_client = api_client_factory(settings.algo_host, settings.algo_port)
     
     compute_route = compute_route_factory(atm_client, algo_client)
     

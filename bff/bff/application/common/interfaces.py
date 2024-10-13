@@ -8,7 +8,7 @@ class ATMClient(Protocol):
         pass
 
 
-Routes: TypeAlias = list[list[int]]
+Routes: TypeAlias = list[list[float]]
 
 
 class AlgoClient(Protocol):
@@ -26,7 +26,7 @@ class ApiClient(Protocol):
 
 @dataclass
 class RouteResponse:
-    routes: list[list[int]]
+    routes: list[list[float]]
 
 
 class IComputeRoute(abc.ABC):

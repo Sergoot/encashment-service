@@ -15,5 +15,5 @@ class ComputeRoute(IComputeRoute):
         atm_response = await self.atm_client.get("atms")
         # TODO some logic with atm_reponse
         raw_routes_response = await self.algo_client.post("compute", data=atm_response)
-        
+        print(raw_routes_response)
         return RouteResponse(routes=raw_routes_response["routes"])
