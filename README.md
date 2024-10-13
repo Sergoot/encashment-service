@@ -8,4 +8,4 @@
     `cp .env.example > .env`
     и заполнить своими данными если нужно
 - Запустить все сервисы сразу можно командой
-    `docker compose --env-file=.env.deploy up --build`
+    `docker compose --env-file .env.deploy up --build`
