@@ -25,3 +25,10 @@ services:
     container_name: algo
     ports:
       - $ALGO_PORT:$ALGO_PORT
+  front:
+    build:
+      context: front
+      dockerfile: Dockerfile
+    container_name: front
+    ports:
+      - $FRONT_PORT:$FRONT_PORT
