@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from atm.src.atm.router import atm_router
+from src.atm.router import atm_router
 
 main_router = APIRouter(
     prefix="/api/v1"

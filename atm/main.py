@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from atm.src.router import main_router
+from src.router import main_router
 
 app = FastAPI(
     debug=True,

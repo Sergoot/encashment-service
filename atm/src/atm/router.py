@@ -1,7 +1,7 @@
 import random
 from fastapi import APIRouter
 
-from atm.src.atm.models import AtmModel
+from src.atm.models import AtmModel
 
 atm_router = APIRouter(
     prefix="/atm",
