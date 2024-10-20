@@ -1,8 +1,23 @@
 from pydantic import BaseModel
 
 
-class AtmModel(BaseModel):
-    id: int
+class Coords(BaseModel):
     lat: float
     long: float
-    balance: int
+
+
+class Capacity(BaseModel):
+    current: int
+    max: int
+
+
+class AtmCapacity(BaseModel):
+    priem: Capacity
+    vidacha: Capacity
+
+
+class AtmModel(BaseModel):
+    id: int
+    coords: Coords
+    capacity: AtmCapacity
+

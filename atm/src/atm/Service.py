@@ -1,5 +1,7 @@
 import random
 
+from src.atm.models import AtmModel, Coords, Capacity, AtmCapacity
+
 class AtmService:
 
     def __init__(self):
@@ -20,13 +22,24 @@ class AtmService:
         filling_bin1 = max(0, min(random.gauss(max_capacity_bin1 / 2, max_capacity_bin1 / 4), max_capacity_bin1))
         filling_bin2 = max(0, min(random.gauss(max_capacity_bin2 / 2, max_capacity_bin2 / 4), max_capacity_bin2))
 
-        return {
-            "priem": {
-                "current": round(filling_bin1),
-                "max": round(max_capacity_bin1)
-            },
-            "vidacha": {
-                "current": round(filling_bin2),
-                "max": round(max_capacity_bin2)
-            }
-        }
+        return AtmCapacity(
+            priem=Capacity(
+                current=round(filling_bin1),
+                max=round(max_capacity_bin1)
+            ),
+            vidacha=Capacity(
+                current=round(filling_bin2),
+                max=round(max_capacity_bin2)
+            )
+        )
+    
+    def get_random_msc_coords(self) -> Coords:
+        return Coords(
+            lat = 55 + random.randint(753904, 909185) / 1000000,
+            long = 37 + random.randint(372128, 844768) / 1000000
+        )
+
+    def generate_atm_in_moscow(self):
+        coords = self.get_random_msc_coords()
+        capacity = self.generate_filling(latitude=coords.lat, longitude=coords.long)
+        return {"coords": coords, "capacity": capacity}
