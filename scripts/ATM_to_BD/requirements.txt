@@ -2,3 +2,5 @@ osmnx
 folium
 pandas
 psycopg2
+scipy
+scikit-learn
