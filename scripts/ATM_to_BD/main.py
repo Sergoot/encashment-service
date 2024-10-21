@@ -2,9 +2,7 @@ import osmnx as ox
 import folium
 import pandas as pd
 import collections
-
 from charset_normalizer.utils import range_scan
-
 from config import DB, TableATM
 import psycopg2
 
