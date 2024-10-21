@@ -9,8 +9,9 @@ import psycopg2
 #conn.rollback()
 
 
-class PSQL():
+class PSQL:
     def __init__(self):
+        print(DB.dbname)
         self.conn = psycopg2.connect(user=DB.user, password=DB.password, host=DB.host, dbname=DB.dbname)
         with self.conn.cursor() as cur:
             sql_request = f"CREATE TABLE IF NOT EXISTS {TableATM.table_name} (osmid BIGSERIAL PRIMARY KEY, x_lon float8, y_lat float8, operator text);"
