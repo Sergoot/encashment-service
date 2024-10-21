@@ -3,7 +3,7 @@ class DB:
     port = 5432
     user = 'postgres'
     password = 'very_strong_password'
-    dbname = 'TRPO_project'
+    dbname = 'TRPO_project' #НЕ ЗАБУДЬ СОЗДАТЬ ОДНОИМЕННУЮ БД, иначе будет выдавать дибильные ошибки из разряда "utf-8"
 
 
 class TableATM:
