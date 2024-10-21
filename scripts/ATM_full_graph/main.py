@@ -39,7 +39,7 @@ ox.config(use_cache=True, log_console=True)
 G = ox.graph_from_place('Moscow, Russia', network_type='drive')
 G = ox.add_edge_speeds(G)
 G = ox.add_edge_travel_times(G)
-
+nodes, edges = ox.graph_to_gdfs(G)
 
 try:
     x1 = df['x_lon'][100]
@@ -50,10 +50,12 @@ try:
     print(x2, y2)
     n1 = ox.nearest_nodes(G, x1, y1)
     n2 = ox.nearest_nodes(G, x2, y2)
-
+    n1_coord = nodes.loc[n1, ['y', 'x']]
+    n2_coord = nodes.loc[n2, ['y', 'x']]
     #print(G[n1])
     #print(dir(n1))
-    print(n1, n2)
+    print(n1_coord['y'], n1_coord['x'], ';', y1, x1)
+    print(n2_coord['y'], n2_coord['x'], ';', y2, x2)
     #src = df['osmid'][1]
     #dst = df['osmid'][2]
     route = nx.shortest_path(G, n1, n2, 'travel_time')
