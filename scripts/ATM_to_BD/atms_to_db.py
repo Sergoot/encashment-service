@@ -1,6 +1,6 @@
 import pandas as pd
 from scripts.Utils.PSQLutils import PSQL
-from scripts.Utils.MapUtils import OSMatms
+from scripts.Utils.MapUtils.OSMUtils import OSMatms
 
 
 sql = PSQL()
