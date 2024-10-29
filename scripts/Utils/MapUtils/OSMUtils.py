@@ -23,3 +23,4 @@ class OSMatms:
     def check_in_MKAD(self, p_lon, p_lat):
         results = self.mkad_polygon.contains(Point(p_lon, p_lat))
         return results
+
