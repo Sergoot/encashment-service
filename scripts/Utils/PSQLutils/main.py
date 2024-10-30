@@ -68,7 +68,7 @@ class PSQL:
 
 
 class PSQL:
-    def __init__(self, DB_dc, Table_dc, auto_connect:bool=True):
+    def __init__(self, DB_dc, Table_dc, auto_connect:bool=True,auto_create_table:bool=True):
         self.user = DB_dc.user  # dc - data class
         self.password = DB_dc.password
         self.host = DB_dc.host
@@ -81,17 +81,22 @@ class PSQL:
         self.last_query = None
         if auto_connect:
             self.connect()
+        if auto_create_table:
+            self.create_table()
 
     def connect(self):
-        self.connection = psycopg2.connect(
-            dbname=self.dbname,
-            user=self.user,
-            password=self.password,
-            host=self.host,
-        )
-        if self.debug:
-            print('сервер подключен')
-        self.create_table()
+        if not self.connection:
+            self.connection = psycopg2.connect(
+                dbname=self.dbname,
+                user=self.user,
+                password=self.password,
+                host=self.host,
+            )
+            if self.debug:
+                print('сервер подключен')
+        else:
+            if self.debug
+                print('сервер УЖЕ был подключен')
 
 
     def create_table(self):
