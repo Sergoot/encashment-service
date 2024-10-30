@@ -95,7 +95,7 @@ class PSQL:
             if self.debug:
                 print('сервер подключен')
         else:
-            if self.debug
+            if self.debug:
                 print('сервер УЖЕ был подключен')
 
 
