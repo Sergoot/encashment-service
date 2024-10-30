@@ -115,6 +115,8 @@ class PSQL:
 
     def __execute_query(self, query, values=None, output=False):
         self.last_query = query
+        if self.debug:
+            print(query.as_string(self.connection))
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(query, values)
