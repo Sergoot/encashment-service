@@ -1,5 +1,5 @@
 import random
-from src.atm.service import AtmService
+from src.atm.Service import AtmService
 from fastapi import APIRouter
 
 from src.atm.models import AtmModel
