@@ -12,8 +12,7 @@ class ComputeRoute(IComputeRoute):
         
     
     async def execute(self, encash_team_id: int) -> RouteResponse:
-        atm_response = await self.atm_client.get("atms")
+        atm_response = await self.atm_client.get("api/v1/atm")
         # TODO some logic with atm_reponse
         raw_routes_response = await self.algo_client.post("compute", data=atm_response)
-        print(raw_routes_response)
         return RouteResponse(routes=raw_routes_response["routes"])

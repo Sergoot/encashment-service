@@ -17,7 +17,7 @@ class AlgoClient(Protocol):
 
 
 class ApiClient(Protocol):
-    async def get(self, url: str, query_data: dict | None = None) -> dict:
+    async def get(self, url: str, query_data: dict | None = None) -> dict | list:
         pass
     
     async def post(self, url: str, data: dict) -> dict:

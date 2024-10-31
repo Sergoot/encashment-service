@@ -31,12 +31,12 @@ async def create_atm_in_moscow(atm: AtmCreate, db: Annotated[AsyncSession, Depen
 
 
 @atm_router.get("")
-async def get_atm_in_moscow(limit: int) -> list[AtmModel]:
-    """ Эндпоинт для получения всех банкоматов Москвы (Рандом) """
+async def get_atm_in_moscow(limit: int = 100) -> list[AtmModel]:
+    """ Эндпоинт для получения всех банкоматов Москвы """
     return [
         AtmModel(id=i, **AtmService().generate_atm_in_moscow())
         for i in range(limit)
-        ]
+    ]
 
 
 @atm_router.get("/{atm_id}")
