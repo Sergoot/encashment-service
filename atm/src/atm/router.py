@@ -43,6 +43,8 @@ async def get_atm_in_moscow(limit: int = 100) -> list[AtmModel]:
 async def get_atm_by_id(atm_id: int, db: Annotated[AsyncSession, Depends(get_session)]):
     """ Эндпоинт для получения банкомата из бд """
     res = (await db.execute(select(Atm).where(Atm.id == atm_id))).scalar_one_or_none()
+    if not res:
+        raise HTTPException(status_code=404, detail="Not found")
 
     return AtmModel(
         id=res.id,
@@ -59,7 +61,7 @@ async def change_atm_capacity(data: ChangeAtmCapacity, db: Annotated[AsyncSessio
     """ Эндпоинт для изменения наполненности банкомата """
     res = (await db.execute(select(Atm).where(Atm.id == data.id))).scalar_one_or_none()
     if not res:
-        return HTTPException(status_code=404, detail="Not found")
+        raise HTTPException(status_code=404, detail="Not found")
     
     await db.execute(
         update(Atm).where(Atm.id == data.id).values(
