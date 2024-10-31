@@ -33,4 +33,4 @@ RUN poetry install --only main
 WORKDIR /app
 COPY . .
 
-CMD ["uvicorn", "--host=0.0.0.0", "--port=9002", "main:app", "--reload", "--factory"]
+CMD ["uvicorn", "--host=0.0.0.0", "--port=9002", "main:app", "--reload"]

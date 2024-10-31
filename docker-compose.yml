@@ -18,6 +18,9 @@ services:
       context: atm
       dockerfile: Dockerfile
     container_name: atm
+    environment:
+      - DATABASE_URL=${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:${POSTGRES_PORT}/postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - database
     ports:

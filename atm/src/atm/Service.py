@@ -1,6 +1,6 @@
 import random
 
-from src.atm.models import AtmModel, Coords, Capacity, AtmCapacity
+from src.atm.schemas import Coords, Capacity, AtmCapacity
 
 class AtmService:
 

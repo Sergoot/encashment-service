@@ -1,23 +1,17 @@
-from pydantic import BaseModel
+from sqlalchemy import Column
+from sqlalchemy import Float
+from sqlalchemy import Integer
+from src.database import Base
 
 
-class Coords(BaseModel):
-    lat: float
-    long: float
+class Atm(Base):
+    __tablename__ = "atms"
 
-
-class Capacity(BaseModel):
-    current: int
-    max: int
-
-
-class AtmCapacity(BaseModel):
-    priem: Capacity
-    vidacha: Capacity
-
-
-class AtmModel(BaseModel):
-    id: int
-    coords: Coords
-    capacity: AtmCapacity
+    id = Column(Integer, autoincrement=True, primary_key=True, index=True)
+    long = Column(Float)
+    lat = Column(Float)
+    priem_current = Column(Float)
+    priem_max = Column(Float)
+    vidacha_current = Column(Float)
+    vidacha_max = Column(Float)
 
