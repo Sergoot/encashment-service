@@ -11,7 +11,7 @@ atm_router = APIRouter(
 
 
 @atm_router.get("/")
-async def get_atm_in_moscow(limit: int) -> list[AtmModel]:
+async def get_atm_in_moscow(limit: int = 100) -> list[AtmModel]:
     """ Эндпоинт для получения всех банкоматов Москвы """
     return [
         AtmModel(id=i, **AtmService().generate_atm_in_moscow())

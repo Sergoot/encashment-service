@@ -1,11 +1,12 @@
-from fastapi import APIRouter
+from typing import Any
+from fastapi import APIRouter, Body
 
 
 router = APIRouter()
 
 
 @router.post("")
-async def compute(data: dict) -> dict:
+async def compute(data: list = Body(default_factory=list())) -> dict:
     
     return {
         "routes": [
