@@ -28,6 +28,9 @@ services:
     command: -p ${POSTGRES_PORT}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
   algo:
