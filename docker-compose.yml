@@ -18,18 +18,24 @@ services:
       context: atm
       dockerfile: Dockerfile
     container_name: atm
-    # depends_on:
-    #   - database
+    environment:
+      - DATABASE_URL=${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:${POSTGRES_PORT}/postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - database
     ports:
       - $ATM_PORT:$ATM_PORT
-  # database:
-  #   image: postgres:16-alpine
-  #   container_name: database
-  #   command: -p ${POSTGRES_PORT}
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   ports:
-  #     - ${POSTGRES_PORT}:${POSTGRES_PORT}
+  database:
+    image: postgres:16-alpine
+    container_name: database
+    command: -p ${POSTGRES_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
   algo:
     build:
       context: algo
@@ -37,13 +43,13 @@ services:
     container_name: algo
     ports:
       - $ALGO_PORT:$ALGO_PORT
-  # frontend:
-  #   build:
-  #     context: frontend
-  #     dockerfile: Dockerfile
-  #   container_name: frontend
-  #   ports:
-  #     - $FRONT_PORT:$FRONT_PORT
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - $FRONT_PORT:$FRONT_PORT
 
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:
