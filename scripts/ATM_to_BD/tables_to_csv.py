@@ -6,6 +6,8 @@
 from scripts.Utils.PSQLutils.main import PSQL
 from scripts.Utils.PSQLutils.config import TableATM,TableNearest, ServerConf
 import pandas as pd
+
+
 atms_sql = PSQL(ServerConf, TableATM)
 nn_sql = PSQL(ServerConf, TableNearest)
 

@@ -2,11 +2,8 @@
 скрипт по выгрузке АМТов и ближайших нод(nearest node - NN) в БД
 """
 import pandas as pd
-from numpy.random.mtrand import operator
-
 from scripts.Utils.PSQLutils import PSQL
 from scripts.Utils.MapUtils.OSMUtils import OSMatms
-
 from scripts.Utils.PSQLutils.config import ServerConf, TableATM, TableNearest
 
 ATMS_sql = PSQL(ServerConf, TableATM)

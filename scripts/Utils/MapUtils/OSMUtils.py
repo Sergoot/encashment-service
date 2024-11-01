@@ -9,6 +9,7 @@ import osmnx as ox
 import geopy.distance
 import networkx as nx
 from time import time
+
 ox.config(use_cache=True,
           #log_console=True
             )

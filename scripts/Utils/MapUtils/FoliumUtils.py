@@ -5,6 +5,7 @@
 from pandas import DataFrame
 import folium
 
+
 class ToFoliumMap:
     def __init__(self,
                  map_center:list[int] = [55.751244, 37.618423],

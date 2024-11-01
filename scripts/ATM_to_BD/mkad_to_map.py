@@ -2,9 +2,11 @@
 простой скрипт по отрисовке всех данных точек МКАДа
 из которых потом строится граница для АТМок
 """
+
 import pandas as pd
 from scripts.Utils.MapUtils.mkad_coords import MKAD_1
 from scripts.Utils.MapUtils.FoliumUtils import ToFoliumMap
+
 
 MKAD_df = pd.DataFrame(MKAD_1, columns=['lon', 'lat'])
 
