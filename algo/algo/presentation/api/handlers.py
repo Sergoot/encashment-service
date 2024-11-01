@@ -1,17 +1,17 @@
 from typing import Any
 from fastapi import APIRouter, Body
-
+import random
 
 router = APIRouter()
 
 
 @router.post("")
 async def compute(data: list = Body(default_factory=list())) -> dict:
-    
+    random.shuffle(data)
     return {
         "routes": [
-            [14.145, 612.24],
-            [124.511, 2134.16],
-            [51.154, 1441.15],
+            [atm["coords"]["lat"], atm["coords"]["long"]]
+            for atm in data
         ]
     }
+
