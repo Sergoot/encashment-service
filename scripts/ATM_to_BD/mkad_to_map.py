@@ -11,5 +11,5 @@ MKAD_df = pd.DataFrame(MKAD_1, columns=['lon', 'lat'])
 output_file = "output_htmls/mkad_dots_on_map.html"
 
 To_map = ToFoliumMap()
-To_map.generate_map(MKAD_df)
+To_map.generate_atm_map(MKAD_df)
 To_map.save_map(output_file)
