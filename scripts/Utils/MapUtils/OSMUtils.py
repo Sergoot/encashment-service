@@ -2,7 +2,8 @@ from shapely.geometry import Point, Polygon
 from scripts.Utils.MapUtils.mkad_coords import MKAD_1
 import osmnx as ox
 import geopy.distance
-
+import networkx as nx
+from time import time
 ox.config(use_cache=True,
           #log_console=True
             )
@@ -34,7 +35,7 @@ class OSMatms:
 
         #отдельно потому что очень долго думает
     def init_place_graph(self, city="Moscow, Russia"):
-        self.road_graph = ox.graph_from_place(city, network_type='drive')
+        self.road_graph = ox.graph_from_place(city, network_type='drive_service')
         self.road_graph = ox.add_edge_speeds(self.road_graph)
         self.road_graph = ox.add_edge_travel_times(self.road_graph)
         self.road_nodes, self.road_edges = ox.graph_to_gdfs(self.road_graph)
@@ -54,8 +55,46 @@ class OSMatms:
                 'in_mkad':self.check_in_MKAD(nn_lon, nn_lat)
                 }
 
+    def get_shortest_route(self, src, dst):
+        route = nx.shortest_path(self.road_graph, src, dst, 'travel_time')
+        return route
+
+    def get_travel_time(self, route):
+        travel_time = sum(
+            self.road_graph[u][v][0]['travel_time']
+            for u, v in zip(route[:-1], route[1:])
+        )
+        return travel_time
+    def get_total_distance(self, route):
+        total_distance = sum(
+            self.road_graph[u][v][0]['length']  # Длина ребра от u к v в метрах
+            for u, v in zip(route[:-1], route[1:]))
+        return total_distance
+
+
 
 if __name__ == '__main__':
     osm = OSMatms()
+    city = osm.get_city()
+    start = time()
     osm.init_place_graph()
-    print(osm.nearest_node(37.598474, 55.791857))
+    print('инициализировал графф:', time() - start)
+    nn = osm.nearest_node(37.6353048, 55.7054893)
+    #10700489641 #37.6647837,55.6782474
+    #7319552029 #37.6356077, 'lat': 55.7050998
+    #
+    #print(nn)
+    src = 10700489641#2616240395
+    dst = 7319552029#1885509144
+    start = time()
+    route = osm.get_shortest_route(src,dst)
+    travel_time = osm.get_travel_time(route)
+    total_distance = osm.get_total_distance(route)
+    print('считал маршрут,время,расстояние:', time() - start)
+
+    print('travel_time= ', travel_time)
+    print('total_distance= ', total_distance)
+    route_map = ox.plot_route_folium(osm.road_graph, route)
+
+    route_map.save('test_road.html')
+    #print(city[nn])
