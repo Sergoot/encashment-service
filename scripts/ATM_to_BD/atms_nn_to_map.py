@@ -1,4 +1,6 @@
-import folium
+"""
+простой скрипт по генерации html карты с банкоматами и ближайшими к ним "обочинами"
+"""
 from scripts.Utils.PSQLutils.main import PSQL
 from scripts.Utils.PSQLutils.config import TableATM,TableNearest, ServerConf
 import pandas as pd

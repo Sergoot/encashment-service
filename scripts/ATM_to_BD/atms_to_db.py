@@ -1,3 +1,6 @@
+"""
+скрипт по выгрузке АМТов и ближайших нод(nearest node - NN) в БД
+"""
 import pandas as pd
 from numpy.random.mtrand import operator
 

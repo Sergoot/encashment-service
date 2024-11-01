@@ -1,3 +1,7 @@
+"""
+скрипт по выгрузке данныз их БД в CSV таблицу
+таблицы АТМов и НН объединятся
+"""
 
 from scripts.Utils.PSQLutils.main import PSQL
 from scripts.Utils.PSQLutils.config import TableATM,TableNearest, ServerConf
