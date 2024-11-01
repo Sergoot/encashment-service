@@ -6,7 +6,7 @@ from scipy.constants import value
 
 from scripts.Utils.PSQLutils.config import TestTable
 from typing import List, Tuple, Any, Dict, Optional
-
+"""
 class PSQL:
     def __init__(self, DB_dc, Table_dc):
         self.user = DB_dc.user #dc - data class
@@ -35,10 +35,10 @@ class PSQL:
         names = map(str, kwargs.keys())
         values = map(str, kwargs.values())
         #formatted_values = tuple(self._format_value(value) for value in values)
-        query = f"""
+        query = f
                 INSERT INTO {self.table_name} ({','.join(names)}) 
                 VALUES ({','.join(values)})
-                """
+                
 
         query = sql.SQL("INSERT INTO {table} ({fields}) VALUES ({placeholders})").format(
             table=sql.Identifier(self.table_name),
@@ -65,7 +65,7 @@ class PSQL:
         self.conn.close()
 
  #'(osmid BIGSERIAL PRIMARY KEY, x_lon float8, y_lat float8, operator text, in_MKAD boolean);'
-
+"""
 
 class PSQL:
     def __init__(self, DB_dc, Table_dc, auto_connect:bool=True,auto_create_table:bool=True):
