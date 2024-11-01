@@ -1,3 +1,8 @@
+"""
+класс отвечающий за работу с графами местности
+просчет маршрута, выгрузка АТМов и тд
+"""
+
 from shapely.geometry import Point, Polygon
 from scripts.Utils.MapUtils.mkad_coords import MKAD_1
 import osmnx as ox

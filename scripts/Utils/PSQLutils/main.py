@@ -1,11 +1,12 @@
-import psycopg2
-from matplotlib.pyplot import connect
-from numpy.f2py.crackfortran import debug
-from psycopg2 import sql
-from scipy.constants import value
+"""
+класс отвечающий ра работу с постгрей
+"""
 
+import psycopg2
+from psycopg2 import sql
 from scripts.Utils.PSQLutils.config import TestTable
 from typing import List, Tuple, Any, Dict, Optional
+
 """
 class PSQL:
     def __init__(self, DB_dc, Table_dc):

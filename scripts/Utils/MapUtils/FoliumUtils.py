@@ -1,6 +1,9 @@
+"""
+тут, по сути, класс отвечающий за красивую отрисовку данных в HTML интерактивной карте
+"""
+
 from pandas import DataFrame
 import folium
-
 
 class ToFoliumMap:
     def __init__(self,
