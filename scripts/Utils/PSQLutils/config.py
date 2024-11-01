@@ -14,19 +14,25 @@ class ServerConf:
 #table_definition - определение типов столбцов (в скл формате)
 class TableATM:
     table_name = 'atms'
-    table_columns = ['osmid', 'x_lon', 'y_lat', 'operator', 'in_mkad', 'nearest_node_osmid']
+    table_columns = ['osmid', 'x_lon', 'y_lat', 'operator', 'in_mkad']
     table_definition = """osmid BIGSERIAL PRIMARY KEY, 
                             x_lon float8, 
                             y_lat float8, 
                             operator text, 
-                            in_mkad boolean, 
-                            nearest_node_osmid BIGSERIAL
+                            in_mkad boolean
                             """
 
 
 class TableNearest:
     table_name = 'nearest_nodes'
-    table_columns = '(osmid BIGSERIAL PRIMARY KEY, x_lon float8, y_lat float8, operator text, in_MKAD boolean);'
+    table_columns = ['osmid', 'atm_osmid', 'x_lon', 'y_lat', 'distance_to_atm', 'in_mkad']
+    table_definition = """osmid BIGSERIAL, 
+                            atm_osmid BIGSERIAL PRIMARY KEY,
+                            x_lon float8, 
+                            y_lat float8, 
+                            distance_to_atm serial,
+                            in_mkad boolean,
+                            FOREIGN KEY (atm_osmid) REFERENCES atms(osmid)"""
 
 
 
