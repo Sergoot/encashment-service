@@ -10,4 +10,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      '/routes': {
+        target: 'http://localhost:9001',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/routes/, '/routes'),
+      },
+    },
+  },
 })
