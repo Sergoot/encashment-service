@@ -35,6 +35,8 @@ for index, atm in atms.iterrows():
         in_mkad=nn['in_mkad']
 
     )
+
+    print(index)
 ATMS_sql.close()
 Nearest_sql.close()
 
