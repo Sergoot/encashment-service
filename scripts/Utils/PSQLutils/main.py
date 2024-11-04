@@ -3,6 +3,7 @@
 """
 
 import psycopg2
+from fiona.features import distance
 from psycopg2 import sql
 from scripts.Utils.PSQLutils.config import TestTable
 from typing import List, Tuple, Any, Dict, Optional
@@ -128,7 +129,7 @@ class PSQL:
             if self.connection:
                 self.connection.rollback()
                 self.close()
-                if debug:
+                if self.debug:
                     print('таблица откатана')
             raise e
 
@@ -176,11 +177,20 @@ def test_PSQL():
     try:
         psql.debug = True
         psql.connect()
-        psql.insert_row(osmid=1235 ,x_lon=3,y_lat=4,operator='ahah',in_MKAD=True, on_conflict_ignore=True)
-        psql.insert_row(osmid=123 ,x_lon=3,y_lat=4,operator='ahah',in_MKAD=True, on_conflict_ignore=True)
+        #psql.insert_row(osmid=1235 ,x_lon=3,y_lat=4,operator='ahah',in_MKAD=True, on_conflict_ignore=True)
+        #psql.insert_row(osmid=123 ,x_lon=3,y_lat=4,operator='ahah',in_MKAD=True, on_conflict_ignore=True)
+        #['direction', 'src', 'dst', 'nodes', 'time', 'distance']
+        #print(psql.fetch_all_rows('osmid=123'))
+        # print(psql.fetch_all_rows('osmid=1235'))
+        psql.insert_row(direction='123->321>',
+                        src='123',dst='321',
+                        nodes=[1,2,3,4,5],
+                        time=228,
+                        distance=1337,
+                        on_conflict_ignore=True)
 
-        print(psql.fetch_all_rows('osmid=123'))
-        print(psql.fetch_all_rows('osmid=1235'))
+        #print(psql.fetch_all_rows('osmid=123'))
+        print(psql.fetch_all_rows())
         print(psql.fetch_all_rows())
         psql._drop_table()
     except Exception as e:
