@@ -3,71 +3,11 @@
 """
 
 import psycopg2
-from fiona.features import distance
 from psycopg2 import sql
+
 from scripts.Utils.PSQLutils.config import TestTable
 from typing import List, Tuple, Any, Dict, Optional
 
-"""
-class PSQL:
-    def __init__(self, DB_dc, Table_dc):
-        self.user = DB_dc.user #dc - data class
-        self.password = DB_dc.password
-        self.host = DB_dc.host
-        self.dbname = DB_dc.dbname
-        self.table_name = Table_dc.table_name
-        self.table_columns = Table_dc.table_columns
-        self.conn = psycopg2.connect(user=self.user,
-                                    password=self.password,
-                                    host=self.host,
-                                    dbname=self.dbname,
-                                    )
-        query = f"CREATE TABLE IF NOT EXISTS {self.table_name} {self.table_columns}"
-        self._execute_sql(query)
-
-    def _execute_sql(self, sql_query:str, values = None, output:bool=False):
-        with self.conn.cursor() as cur:
-            cur.execute(sql_query, values)
-            if output:
-                return cur.fetchall()
-            else:
-                self.conn.commit()
-
-    def write_row(self, conflict_column=None, **kwargs):
-        names = map(str, kwargs.keys())
-        values = map(str, kwargs.values())
-        #formatted_values = tuple(self._format_value(value) for value in values)
-        query = f
-                INSERT INTO {self.table_name} ({','.join(names)}) 
-                VALUES ({','.join(values)})
-                
-
-        query = sql.SQL("INSERT INTO {table} ({fields}) VALUES ({placeholders})").format(
-            table=sql.Identifier(self.table_name),
-            fields=sql.SQL(', ').join(map(sql.Identifier, names)),
-            placeholders=sql.SQL(', ').join(sql.Placeholder() * len(kwargs))
-        )
-        print(query)
-
-        #if conflict_column is not None:
-            #query = f' ON CONFLICT ({conflict_column}) DO NOTHING;'
-        self._execute_sql(query, values)
-
-    #Я ЗНАЮ ЧТО ЭТО ОЧКО БЕЗОПАСНОСТИ
-    #к этому скрипту пользователь не допущен
-    #я художник я так вижу
-    def get_atms_from_db(self, in_mkad:bool = None):
-        query = f"SELECT * FROM {TableATM.table_name}"
-
-        if in_mkad is not None:
-            query += f' WHERE in_MKAD = {in_mkad}'
-        return self._execute_sql(query, output=True)
-
-    def close(self):
-        self.conn.close()
-
- #'(osmid BIGSERIAL PRIMARY KEY, x_lon float8, y_lat float8, operator text, in_MKAD boolean);'
-"""
 
 class PSQL:
     def __init__(self, DB_dc, Table_dc, auto_connect:bool=True,auto_create_table:bool=True):
@@ -138,11 +78,15 @@ class PSQL:
     #скорее всего придется еще и по удаленности делать
     #типо больше меньше указанного расстояния
     #и я хз как уже такое реализовывать
-    def fetch_all_rows(self, filter_sql:str=None) -> List[Tuple[Any, ...]]:
+    def fetch_rows(self, filter_sql:str=None, _count:int=None) -> List[Tuple[Any, ...]]:
         query = sql.SQL("SELECT * FROM {table}").format(table=sql.Identifier(self.table_name))
-        if filter_sql is not None:
+        if filter_sql:
 
             query += sql.SQL(' WHERE ' + filter_sql)
+        if _count:
+            query += sql.SQL(' LIMIT {count} ').format(
+                count=sql.Literal(_count)
+            )
         #values = tuple(filter.values()) if filter else None
         return self.__execute_query(query, output=True)
 
@@ -188,10 +132,22 @@ def test_PSQL():
                         time=228,
                         distance=1337,
                         on_conflict_ignore=True)
+        psql.insert_row(direction='1263->321>',
+                        src='123', dst='321',
+                        nodes=[1, 2, 3, 4, 5],
+                        time=228,
+                        distance=1337,
+                        on_conflict_ignore=True)
+        psql.insert_row(direction='1243->321>',
+                        src='123', dst='321',
+                        nodes=[1, 2, 3, 4, 5],
+                        time=228,
+                        distance=1337,
+                        on_conflict_ignore=True)
 
         #print(psql.fetch_all_rows('osmid=123'))
-        print(psql.fetch_all_rows())
-        print(psql.fetch_all_rows())
+        print(psql.fetch_rows(_count=1))
+        print(psql.fetch_rows())
         psql._drop_table()
     except Exception as e:
         psql._drop_table()
