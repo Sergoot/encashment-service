@@ -1,4 +1,9 @@
-from fiona.features import distance
+"""
+ДАЖЕ НЕ ПЫТАЙСЯ ЭТО ЗАПУСКАТЬ
+я потратил на просчет этого говна 35 часов на стационарном компе
+не оптимизирован, но и скрипт разовый
+"""
+input('ты уверен???')
 
 from scripts.Utils.PSQLutils.main import PSQL
 from scripts.Utils.PSQLutils.config import TableNearest, ServerConf, TableATM, TableRoutes
@@ -11,8 +16,8 @@ nn_sql = PSQL(ServerConf, TableNearest)
 
 routes_sql = PSQL(ServerConf, TableRoutes)
 
-atms = atm_sql.fetch_all_rows()
-nn = nn_sql.fetch_all_rows()
+atms = atm_sql.fetch_rows()
+nn = nn_sql.fetch_rows()
 atms = pd.DataFrame(atms, columns=['atm_osmid' , 'atm_lon', 'atm_lat' , 'operator', 'atm_in_mkad'])
 nn = pd.DataFrame(nn, columns=['nn_osmid', 'atm_osmid' , 'nn_lon', 'nn_lat' , 'distance', 'nn_in_mkad'])
 
@@ -23,7 +28,7 @@ Merged_ATM_NN = Merged_ATM_NN[(Merged_ATM_NN['atm_in_mkad'] == True) & (Merged_A
 
 #atms_in_use = list()
 nn_all = set()
-routes_in_db = routes_sql.fetch_all_rows()
+routes_in_db = routes_sql.fetch_rows()
 routes_in_db = pd.DataFrame(routes_in_db, columns=TableRoutes.table_columns)
 routes_in_db = set(routes_in_db['direction'])
 
@@ -32,8 +37,9 @@ for index, row in Merged_ATM_NN.iterrows():
     count += 1
     #atms_in_use.append(row['atm_osmid'])
     nn_all.add(row['nn_osmid'])
-    if count == 1000:
-        break
+    if count == 10:
+        #break
+        pass
 
 
 routes_all = set()
