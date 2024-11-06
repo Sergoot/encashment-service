@@ -9,8 +9,8 @@ from scripts.Utils.MapUtils.FoliumUtils import ToFoliumMap
 atms_sql = PSQL(ServerConf, TableATM)
 nn_sql = PSQL(ServerConf, TableNearest)
 
-atms = atms_sql.fetch_all_rows()
-nn = nn_sql.fetch_all_rows()
+atms = atms_sql.fetch_rows()
+nn = nn_sql.fetch_rows()
 atms = pd.DataFrame(atms, columns=['atm_osmid' , 'atm_lon', 'atm_lat' , 'operator', 'atm_in_mkad'])
 nn = pd.DataFrame(nn, columns=['nn_osmid', 'atm_osmid' , 'nn_lon', 'nn_lat' , 'distance', 'nn_in_mkad'])
 

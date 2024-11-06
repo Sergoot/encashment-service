@@ -9,7 +9,7 @@ from scripts.Utils.PSQLutils.config import ServerConf, TableATM
 
 
 sql = PSQL(ServerConf, TableATM)
-lol = sql.fetch_all_rows("in_mkad=TRUE")
+lol = sql.fetch_rows("in_mkad=TRUE")
 sql.close()
 
 ATM_df = pd.DataFrame(lol, columns=TableATM.table_columns)
