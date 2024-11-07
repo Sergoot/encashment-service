@@ -117,33 +117,33 @@ class PSQL:
 
 def test_PSQL():
     from config import ServerConf, TableATM
-    psql = PSQL(ServerConf, TestTable)
+    psql = PSQL(ServerConf, TableATM)
     try:
         psql.debug = True
         psql.connect()
-        #psql.insert_row(osmid=1235 ,x_lon=3,y_lat=4,operator='ahah',in_MKAD=True, on_conflict_ignore=True)
+        psql.insert_row(osmid=1235 ,x_lon=3,y_lat=4,operator='ahah',in_MKAD=True, on_conflict_ignore=True)
         #psql.insert_row(osmid=123 ,x_lon=3,y_lat=4,operator='ahah',in_MKAD=True, on_conflict_ignore=True)
         #['direction', 'src', 'dst', 'nodes', 'time', 'distance']
         #print(psql.fetch_all_rows('osmid=123'))
         # print(psql.fetch_all_rows('osmid=1235'))
-        psql.insert_row(direction='123->321>',
-                        src='123',dst='321',
-                        nodes=[1,2,3,4,5],
-                        time=228,
-                        distance=1337,
-                        on_conflict_ignore=True)
-        psql.insert_row(direction='1263->321>',
-                        src='123', dst='321',
-                        nodes=[1, 2, 3, 4, 5],
-                        time=228,
-                        distance=1337,
-                        on_conflict_ignore=True)
-        psql.insert_row(direction='1243->321>',
-                        src='123', dst='321',
-                        nodes=[1, 2, 3, 4, 5],
-                        time=228,
-                        distance=1337,
-                        on_conflict_ignore=True)
+        #psql.insert_row(direction='123->321>',
+        #                src='123',dst='321',
+        #                nodes=[1,2,3,4,5],
+        #                time=228,
+        #                distance=1337,
+        #                on_conflict_ignore=True)
+        #psql.insert_row(direction='1263->321>',
+        #                src='123', dst='321',
+        #                nodes=[1, 2, 3, 4, 5],
+        #                time=228,
+        #                distance=1337,
+        #                on_conflict_ignore=True)
+        #psql.insert_row(direction='1243->321>',
+        #                src='123', dst='321',
+        #                nodes=[1, 2, 3, 4, 5],
+        #                time=228,
+        #                distance=1337,
+        #                on_conflict_ignore=True)
 
         #print(psql.fetch_all_rows('osmid=123'))
         print(psql.fetch_rows(_count=1))
