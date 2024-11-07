@@ -1,6 +1,7 @@
 import random
 class ServerConf:
     host = 'localhost'
+    #host = '192.168.0.3'
     port = 5432
     user = 'postgres'
     password = 'very_strong_password'
@@ -45,6 +46,35 @@ class TableRoutes:
                             time SERIAL,
                             distance serial"""
                             #с bigint это шутка какая то
+
+class TableRoutes2:
+    table_name = 'routes_2.0'
+    table_columns = ['key_column ', 'src', 'dst', 'nodes', 'time', 'distance']
+    table_definition = """  key_column SERIAL PRIMARY KEY, 
+                            src BIGSERIAL,
+                            dst BIGSERIAL, 
+                            nodes BIGINT[],
+                            time SERIAL,
+                            distance SERIAL,
+                            FOREIGN KEY (src) REFERENCES nearest_nodes(osmid),
+                            FOREIGN KEY (dst) REFERENCES nearest_nodes(osmid)"""
+                            #с bigint это шутка какая то
+
+class TableAvailableATMs:
+    table_name = 'allowed_atms'
+    table_columns = ['osmid']
+    table_definition = """  osmid BIGSERIAL PRIMARY KEY, 
+                            FOREIGN KEY (osmid) REFERENCES atms(osmid)"""
+
+class TableRoutesTest:
+    table_name = 'routes_test'
+    table_columns = ['direction', 'src', 'dst', 'nodes', 'time', 'distance']
+    table_definition = """  direction TEXT PRIMARY KEY, 
+                            src BIGSERIAL,
+                            dst BIGSERIAL, 
+                            nodes BIGINT[],
+                            time SERIAL,
+                            distance serial"""
 
 class TestTable:
     #table_name = f'test_table{random.randint(0,100000)}'
