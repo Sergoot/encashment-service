@@ -47,12 +47,12 @@ class Algo:
         self.Routes = pd.DataFrame(routes_sql.fetch_rows(), columns=self.db_table_routes.table_columns)
 
     def _init_graph(self):
-        if not self.Routes:
+        if not isinstance(self.Routes, DataFrame):
             raise 'Маршруты не инициализированны'
         self.Graph = nx.DiGraph()
 
         for _, row in self.Routes .iterrows():
-            G.add_edge(
+            self.Graph.add_edge(
                 row['src'],  # начальный узел
                 row['dst'],  # конечный узел
                 path=row['direction'],  # путь или информация о пути
@@ -70,7 +70,7 @@ class Algo:
         if len(out) != 1:
             raise f'В таблице OSMID банкомата {len(out)} != 1'
 
-        return out.loc[0,'osmid']
+        return list(out['osmid'])[0]
 
     def get_ATMs_via_NN(self, nn_osmid) -> list:
         if not isinstance(self.NNs, DataFrame):
@@ -104,7 +104,8 @@ lol = Algo(
     db_table_routes=TableRoutes
 )
 #print(lol.get_NN_via_ATM(408385048))
-#print(lol.get_ATMs_via_NN(1107533819))
+#(lol.get_ATMs_via_NN(1107533819))
+#print(lol.get_NN_via_ATM(656132952))
 
 start = time()
 lol._init_routes()
@@ -113,6 +114,6 @@ print(time() - start)
 start = time()
 lol._init_graph()
 print(time() - start)
-atms = [444776906, 588069762, 656132952]
+atms = [627937161, 701246437, 884420360]
 route = lol.get_route_via_atms(atms)
-
+print(route)
