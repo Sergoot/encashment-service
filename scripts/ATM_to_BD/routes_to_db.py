@@ -3,7 +3,7 @@
 я потратил на просчет этого говна 35 часов на стационарном компе
 не оптимизирован, но и скрипт разовый
 """
-input('ты уверен???')
+#input('ты уверен???')
 
 from scripts.Utils.PSQLutils.main import PSQL
 from scripts.Utils.PSQLutils.config import TableNearest, ServerConf, TableATM, TableRoutes
@@ -25,6 +25,10 @@ Merged_ATM_NN = pd.merge(atms, nn, on='atm_osmid')
 
 Merged_ATM_NN = Merged_ATM_NN.sort_values(by='distance')
 Merged_ATM_NN = Merged_ATM_NN[(Merged_ATM_NN['atm_in_mkad'] == True) & (Merged_ATM_NN['nn_in_mkad'] == True)]
+Merged_ATM_NN = Merged_ATM_NN.head(1000)
+#Merged_ATM_NN = Merged_ATM_NN.loc[0:1000]
+
+
 
 #atms_in_use = list()
 nn_all = set()
