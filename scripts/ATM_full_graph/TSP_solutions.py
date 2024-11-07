@@ -32,7 +32,7 @@ class TSP:
         if end_point not in graph.nodes and end_point:
             raise ValueError("Начальная нода отсутствует в графе.")
 
-    def add_route(self, route):
+    def current_route(self, route):
         if self.start_point:
             route = [self.start_point] + route
         if self.end_point:
@@ -43,7 +43,7 @@ class TSP:
         """Вычисляет длину маршрута для данного порядка узлов."""
         total_length = 0
         for i in range(len(route) - 1):
-            total_length += self.graph[route[i]][route[i + 1]][edge_key]
+            total_length += self.graph[route[i]][route[i + 1]][self.edge_key]
         return total_length
 
     def TSP_solution_GPT(self, initial_temperature=10000000, cooling_rate=0.9999, min_temperature=1):
@@ -51,7 +51,7 @@ class TSP:
         # Исключаем начальную точку из перемешиваемых узлов, чтобы фиксировать её в начале и конце маршрута
         #middle_points = [point for point in self.points if point != self.start]
         random.shuffle(self.points)
-        current_route = self.add_route(self.points)
+        current_route = self.current_route(self.points)
 
 
 
@@ -69,7 +69,7 @@ class TSP:
             new_route[i], new_route[j] = new_route[j], new_route[i]
 
             # Вычисляем длину нового маршрута
-            new_route = self.add_route(new_route)
+            new_route = self.current_route(new_route)
             new_length = self.calculate_route_length(new_route)
 
             # Разница между новым и текущим решениями
