@@ -55,16 +55,22 @@ class TableRoutes2:
                             dst BIGSERIAL, 
                             nodes BIGINT[],
                             time SERIAL,
-                            distance SERIAL,
-                            FOREIGN KEY (src) REFERENCES nearest_nodes(osmid),
-                            FOREIGN KEY (dst) REFERENCES nearest_nodes(osmid)"""
+                            distance SERIAL"""
+                            #FOREIGN KEY (src) REFERENCES nearest_nodes(osmid),
+                            #FOREIGN KEY (dst) REFERENCES nearest_nodes(osmid)
                             #с bigint это шутка какая то
 
-class TableAvailableATMs:
+class TableAllowedATMs:
     table_name = 'allowed_atms'
     table_columns = ['osmid']
     table_definition = """  osmid BIGSERIAL PRIMARY KEY, 
                             FOREIGN KEY (osmid) REFERENCES atms(osmid)"""
+
+class TableAllowedNNs:
+    table_name = 'allowed_nearest_nodes'
+    table_columns = ['osmid']
+    table_definition = """  osmid BIGSERIAL PRIMARY KEY"""
+                            #FOREIGN KEY (osmid) REFERENCES atms(osmid)"""
 
 class TableRoutesTest:
     table_name = 'routes_test'

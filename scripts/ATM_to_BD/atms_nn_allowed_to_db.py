@@ -7,11 +7,12 @@
 
 import pandas as pd
 from scripts.Utils.PSQLutils.main import PSQL
-from scripts.Utils.PSQLutils.config import ServerConf,TableAvailableATMs,TableATM,TableNearest
+from scripts.Utils.PSQLutils.config import ServerConf,TableAllowedATMs,TableATM,TableNearest,TableAllowedNNs
 
 atm_sql = PSQL(ServerConf, TableATM)
 nn_sql = PSQL(ServerConf, TableNearest)
-atm_allowed_sql = PSQL(ServerConf, TableAvailableATMs)
+atm_allowed_sql = PSQL(ServerConf, TableAllowedATMs)
+nn_allowed_sql = PSQL(ServerConf, TableAllowedNNs)
 
 atms = atm_sql.fetch_rows()
 nn = nn_sql.fetch_rows()
@@ -25,9 +26,14 @@ Merged_ATM_NN = Merged_ATM_NN[(Merged_ATM_NN['atm_in_mkad'] == True) & (Merged_A
 Merged_ATM_NN = Merged_ATM_NN.head(1000)
 
 for index,row in Merged_ATM_NN.iterrows():
-    print(row['atm_osmid'])
+    print(index)
     atm_allowed_sql.insert_row(
-        osmid = row['atm_osmid']
+        osmid = row['atm_osmid'],
+        on_conflict_ignore = True
+    )
+    nn_allowed_sql.insert_row(
+        osmid = row['nn_osmid'],
+        on_conflict_ignore=True
     )
 
 atm_sql.close()
