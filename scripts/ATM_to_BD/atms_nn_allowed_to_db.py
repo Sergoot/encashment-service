@@ -25,8 +25,12 @@ Merged_ATM_NN = Merged_ATM_NN.sort_values(by='distance')
 Merged_ATM_NN = Merged_ATM_NN[(Merged_ATM_NN['atm_in_mkad'] == True) & (Merged_ATM_NN['nn_in_mkad'] == True)]
 Merged_ATM_NN = Merged_ATM_NN.head(1000)
 
+print(len(Merged_ATM_NN))
+
+count = 0
+
 for index,row in Merged_ATM_NN.iterrows():
-    print(index)
+    #print(index)
     atm_allowed_sql.insert_row(
         osmid = row['atm_osmid'],
         on_conflict_ignore = True
@@ -35,6 +39,9 @@ for index,row in Merged_ATM_NN.iterrows():
         osmid = row['nn_osmid'],
         on_conflict_ignore=True
     )
+    count += 1
+
+print(count)
 
 atm_sql.close()
 nn_sql.close()
