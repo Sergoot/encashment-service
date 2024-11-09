@@ -48,16 +48,16 @@ class TableRoutes:
                             #с bigint это шутка какая то
 
 class TableRoutes2:
-    table_name = 'routes_2.0'
-    table_columns = ['key_column ', 'src', 'dst', 'nodes', 'time', 'distance']
-    table_definition = """  key_column SERIAL PRIMARY KEY, 
+    table_name = 'routes_2.1'
+    table_columns = ['src', 'dst', 'nodes', 'time', 'distance']
+    table_definition = """  id SERIAL PRIMARY KEY, 
                             src BIGSERIAL,
                             dst BIGSERIAL, 
                             nodes BIGINT[],
                             time SERIAL,
-                            distance SERIAL"""
-                            #FOREIGN KEY (src) REFERENCES nearest_nodes(osmid),
-                            #FOREIGN KEY (dst) REFERENCES nearest_nodes(osmid)
+                            distance SERIAL,
+                            FOREIGN KEY (src) REFERENCES allowed_nearest_nodes(osmid),
+                            FOREIGN KEY (dst) REFERENCES allowed_nearest_nodes(osmid)"""
                             #с bigint это шутка какая то
 
 class TableAllowedATMs:
