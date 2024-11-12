@@ -2,7 +2,7 @@ from time import time
 import networkx as nx
 import osmnx as ox
 import random
-from config import DB, TableATM
+#from config import DB, TableATM
 import psycopg2
 import pandas as pd
 
