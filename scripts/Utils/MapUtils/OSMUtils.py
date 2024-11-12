@@ -98,7 +98,7 @@ class OSMatms:
     def check_is_connected(self):
         return nx.is_weakly_connected(self.road_graph)
 
-    def get_shortest_route(self, src, dst):
+    def get_shortest_route(self, src:int, dst:int):
         route = nx.shortest_path(self.road_graph, src, dst, 'travel_time')
         return route
 
