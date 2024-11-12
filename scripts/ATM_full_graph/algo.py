@@ -9,6 +9,7 @@ from networkx import DiGraph
 from time import time
 
 
+
 class Algo:
     def __init__(self,
                  db_server_conf,
@@ -48,7 +49,7 @@ class Algo:
 
     def _init_graph(self):
         if not isinstance(self.Routes, DataFrame):
-            raise 'Маршруты не инициализированны'
+            raise Exception('Маршруты не инициализированны')
         self.Graph = nx.DiGraph()
 
         for _, row in self.Routes .iterrows():
@@ -63,23 +64,22 @@ class Algo:
 
     def get_NN_via_ATM(self, atm_osmid) -> int:
         if not isinstance(self.NNs, DataFrame):
-            raise 'Таблица обочин не инициализированна'
+            raise Exception('Таблица обочин не инициализированна')
         df = self.NNs
         out = df.loc[df['atm_osmid'] == atm_osmid]
-
         if len(out) != 1:
-            raise f'В таблице OSMID банкомата {len(out)} != 1'
+            raise Exception(f'В таблице OSMID {atm_osmid} банкомата {len(out)} != 1')
 
         return list(out['osmid'])[0]
 
     def get_ATMs_via_NN(self, nn_osmid) -> list:
         if not isinstance(self.NNs, DataFrame):
-            raise 'Таблица обочин не инициализированна'
+            raise Exception('Таблица обочин не инициализированна')
         df = self.NNs
         out = df.loc[df['osmid'] == nn_osmid]
 
         if len(out) == 0:
-            raise 'Банкоматов не найдено'
+            raise Exception('Банкоматов не найдено')
 
         return list(out['atm_osmid'])
 
@@ -91,7 +91,7 @@ class Algo:
 
     def get_route_via_nns(self, nns:list[int]):
         if not isinstance(self.Graph, DiGraph):
-            raise 'Граф не инициализирован'
+            raise Exception('Граф не инициализирован')
         tsp = TSP(self.Graph, nns)
         route = tsp.TSP_solution_GPT()
         return route
@@ -114,6 +114,9 @@ print(time() - start)
 start = time()
 lol._init_graph()
 print(time() - start)
-atms = [627937161, 701246437, 884420360]
+
+atms = [408385048, 938253590, 941766735]
+start = time()
 route = lol.get_route_via_atms(atms)
+print(time() - start)
 print(route)

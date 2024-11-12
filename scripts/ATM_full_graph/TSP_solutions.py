@@ -88,7 +88,7 @@ class TSP:
             # Понижаем температуру
             temperature *= cooling_rate
 
-        return best_route, best_length
+        return best_route
 
 
 def test():
