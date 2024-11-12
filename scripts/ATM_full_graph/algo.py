@@ -46,6 +46,7 @@ class Algo:
     def _init_routes(self):
         routes_sql = PSQL(self.db_server_conf, self.db_table_routes)
         self.Routes = pd.DataFrame(routes_sql.fetch_rows(), columns=self.db_table_routes.table_columns)
+        #тут надо дописать append к таблице с маршрутами от/до опорной точки
 
     def _init_graph(self):
         if not isinstance(self.Routes, DataFrame):
