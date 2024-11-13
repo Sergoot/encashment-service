@@ -7,10 +7,10 @@ import pandas as pd
 
 from scripts.Utils.PSQLutils.config import ServerConf,TableRoutes
 from scripts.Utils.PSQLutils.main import PSQL
-
+from networkx import DiGraph
 
 class TSP:
-    def __init__(self, graph, points, start_point=None, end_point=None, edge_key='travel_time'):
+    def __init__(self, graph:DiGraph, points:set[int], start_point=None, end_point=None, edge_key='travel_time'):
         self.graph = graph
         self.points = points
         self.start_point = start_point
@@ -32,7 +32,7 @@ class TSP:
         if end_point not in graph.nodes and end_point:
             raise ValueError("Начальная нода отсутствует в графе.")
 
-    def current_route(self, route):
+    def get_current_route(self, route):
         if self.start_point:
             route = [self.start_point] + route
         if self.end_point:
@@ -46,31 +46,40 @@ class TSP:
             total_length += self.graph[route[i]][route[i + 1]][self.edge_key]
         return total_length
 
-    def TSP_solution_GPT(self, initial_temperature=10000000, cooling_rate=0.9999, min_temperature=1):
+    def TSP_solution_GPT(self, initial_temperature=10000, cooling_rate=0.995, min_temperature=1):
 
-        # Исключаем начальную точку из перемешиваемых узлов, чтобы фиксировать её в начале и конце маршрута
-        #middle_points = [point for point in self.points if point != self.start]
-        random.shuffle(self.points)
-        current_route = self.current_route(self.points)
+        #создаем нынешний маршрут
+        current_route = list(self.points)
 
+        #шафлим, можно и без этого в целом
+        random.shuffle(current_route)
 
+        #создаем нынешний маршрут с точкой отправления и прибытия
+        current_route_with_start_stop = self.get_current_route(current_route)
 
-        # Начальная длина маршрута
-        current_length = self.calculate_route_length(current_route)
-        best_route = current_route[:]
+        #просчитываем первоначальную длинну маршрута
+        current_length = self.calculate_route_length(current_route_with_start_stop)
+
+        #записываем лучший маршрут/время
+        best_route = current_route_with_start_stop.copy()
         best_length = current_length
 
+        #берем начальную температуру
         temperature = initial_temperature
 
         while temperature > min_temperature:
-            # Создаем соседнее решение путем обмена двух случайных узлов
-            new_route = current_route[:]
-            i, j = random.sample(range(len(self.points)),2)  # Индексы 1 до len(points)-1, чтобы не менять start
-            new_route[i], new_route[j] = new_route[j], new_route[i]
+            #считаем новый маршрут
+            new_route = current_route.copy()
+            #меняем 2 рандомные точки местами
+            if len(new_route) >= 2:
+                i, j = random.sample(range(len(self.points)),2)
+                new_route[i], new_route[j] = new_route[j], new_route[i]
+
+            #добавляем в новый маршрут start/stop
+            new_route_with_start_stop = self.get_current_route(new_route)
 
             # Вычисляем длину нового маршрута
-            new_route = self.current_route(new_route)
-            new_length = self.calculate_route_length(new_route)
+            new_length = self.calculate_route_length(new_route_with_start_stop)
 
             # Разница между новым и текущим решениями
             delta_length = new_length - current_length
@@ -82,19 +91,17 @@ class TSP:
 
                 # Обновляем лучшее решение
                 if new_length < best_length:
-                    best_route = new_route
+                    best_route = new_route_with_start_stop
                     best_length = new_length
 
             # Понижаем температуру
             temperature *= cooling_rate
 
-        return best_route
+        return best_route, best_length
 
 
 def test():
     routes_sql = PSQL(ServerConf, TableRoutes)
-
-
 
     routes_in_db = routes_sql.fetch_rows()
     routes_df = pd.DataFrame(routes_in_db, columns=TableRoutes.table_columns)
