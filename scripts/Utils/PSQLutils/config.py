@@ -45,6 +45,16 @@ class TableRoutes:
                             nodes BIGINT[],
                             time SERIAL,
                             distance serial"""
+
+class TableRoutesToMAI:
+    table_name = 'routes_to_mai'
+    table_columns = ['direction', 'src', 'dst', 'nodes', 'time', 'distance']
+    table_definition = """  direction TEXT PRIMARY KEY, 
+                            src BIGSERIAL,
+                            dst BIGSERIAL, 
+                            nodes BIGINT[],
+                            time SERIAL,
+                            distance serial"""
                             #с bigint это шутка какая то
 
 class TableRoutes2:
