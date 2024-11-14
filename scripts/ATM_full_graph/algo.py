@@ -147,30 +147,30 @@ class Algo:
             pass
         if len(set(nns)) != len(nns):
             raise Exception('Есть повторяющиеся ноды')
-        #print(nns)
         tsp = TSP(self.Graph, nns, debug=True)
-        route, route_time = tsp.TSP_solution_GPT(initial_temperature=100_000, cooling_rate=0.9999)
-        #print(route)
+        route, route_time = tsp.TSP_solution_GPT(initial_temperature=20_000, cooling_rate=0.9999)
         return route, route_time
 
-
-    def sort_atms_via_route(self, atms):
+    def sort_atms_via_route(self, atms, route):
         output = list()
-        optimal_route, _ = self.get_route_via_atms_for_sort(atms)
-        for node in optimal_route:
+        for node in route:
             atms_in_node = self.nn_atms_dict[node]
             for atm in atms_in_node:
                 if atm in atms:
                     output.append(atm)
         return output
 
+    def first_sort(self , atms):
+        optimal_route, _ = self.get_route_via_atms_for_sort(atms)
+        output = self.sort_atms_via_route(atms, optimal_route)
+        return output
 
     def calculate_ensemble_of_routes(self, atms:list[int] , sort_before=True):
         if len(set(atms)) != len(atms):
             raise Exception('Есть повторяющиеся банкоматы')
         #предварительная сортировка атмов для составления оптимального маршрута
         if sort_before:
-            atms = self.sort_atms_via_route(atms)
+            atms = self.first_sort(atms)
         output = list()
         current_car = 1
 
@@ -179,12 +179,10 @@ class Algo:
         current_time = 0
 
         new_atms = list()
-        new_route = list()
-        new_time = 0
+
         count = 0
         last_atm = atms[-1]
         for atm in atms:
-            #print(count, len(atms))
             count += 1
             new_atms.append(atm)
             new_route, route_time = self.get_route_via_atms(new_atms)
@@ -195,9 +193,12 @@ class Algo:
                 current_route = new_route
                 current_time = new_time
             if new_time > self.workday_time or atm == last_atm:
+                sorted_atms = self.sort_atms_via_route(
+                    current_atms.copy(),
+                    current_route.copy()[1:-1])
                 output.append({
                     'car_id': current_car,
-                    'atms': current_atms.copy(),
+                    'atms': sorted_atms,
                     'route': current_route.copy(),
                     'route_time':current_time
                 })
@@ -205,14 +206,9 @@ class Algo:
                 current_atms = list()
                 current_route = list()
                 current_time = 0
-
                 new_atms = list()
-                new_route = list()
-                new_time = 0
-
                 new_atms.append(atm)
-                new_route, route_time = self.get_route_via_atms(new_atms)
-                new_time = len(new_atms) * self.atm_time + route_time
+
         return output
 
 
