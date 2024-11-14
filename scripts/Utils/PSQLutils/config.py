@@ -23,6 +23,30 @@ class TableATM:
                             in_mkad boolean
                             """
 
+class TableATMAllowedNew:
+    table_name = 'atms_allowed_new'
+    table_columns = ['atm_osmid',
+                     'atm_x_lon',
+                     'atm_y_lat',
+                     'operator',
+                     'atm_in_mkad',
+                     'nn_osmid',
+                     'nn_x_lon',
+                     'nn_y_lat',
+                     'nn_in_mkad',
+                     'atm_nn_distance']
+    table_definition = """  atm_osmid BIGSERIAL PRIMARY KEY, 
+                            atm_x_lon float8, 
+                            atm_y_lat float8, 
+                            operator text, 
+                            atm_in_mkad boolean,
+                            nn_osmid BIGSERIAL, 
+                            nn_x_lon float8, 
+                            nn_y_lat float8, 
+                            nn_in_mkad boolean,
+                            atm_nn_distance serial
+                            """
+
 
 class TableNearest:
     table_name = 'nearest_nodes'
