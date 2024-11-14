@@ -6,7 +6,7 @@ class ServerConf:
     user = 'postgres'
     password = 'very_strong_password'
     dbname = 'TRPO_project' #НЕ ЗАБУДЬ СОЗДАТЬ ОДНОИМЕННУЮ БД, иначе будет выдавать дибильные ошибки из разряда "utf-8"
-    dbname = 'TRPO_new'  # НЕ ЗАБУДЬ СОЗДАТЬ ОДНОИМЕННУЮ БД, иначе будет выдавать дибильные ошибки из разряда "utf-8"
+    #dbname = 'TRPO_new'  # НЕ ЗАБУДЬ СОЗДАТЬ ОДНОИМЕННУЮ БД, иначе будет выдавать дибильные ошибки из разряда "utf-8"
 
 
 #БАЗА для создания Table{имя}
@@ -60,6 +60,17 @@ class TableNearest:
                             FOREIGN KEY (atm_osmid) REFERENCES atms(osmid)"""
 
 
+class TableRoutesMAI:
+    table_name = 'routes_to_mai'
+    table_columns = ['direction', 'src', 'dst', 'nodes', 'time', 'distance']
+    table_definition = """  direction TEXT PRIMARY KEY, 
+                            src BIGSERIAL,
+                            dst BIGSERIAL, 
+                            nodes BIGINT[],
+                            time SERIAL,
+                            distance serial"""
+                            #с bigint это шутка какая то
+
 class TableRoutes:
     table_name = 'routes'
     table_columns = ['direction', 'src', 'dst', 'nodes', 'time', 'distance']
@@ -79,7 +90,6 @@ class TableRoutesToMAI:
                             nodes BIGINT[],
                             time SERIAL,
                             distance serial"""
-                            #с bigint это шутка какая то
 
 class TableRoutes2:
     table_name = 'routes_2.1'
