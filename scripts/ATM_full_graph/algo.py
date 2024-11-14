@@ -6,7 +6,8 @@ from scripts.Utils.PSQLutils.config import (ServerConf,
                                             TableNearest,
                                             TableRoutes,
                                             TableRoutesToMAI,
-                                            TableAllowedATMs)
+                                            TableAllowedATMs,
+                                            TableATMAllowedNew)
 from scripts.ATM_full_graph.TSP_solutions import TSP
 import networkx as nx
 from networkx import DiGraph
@@ -17,14 +18,12 @@ from time import time
 class Algo:
     def __init__(self,
                  db_server_conf,
-                 db_table_atm,
-                 db_table_nn,
+                 db_table_atm_nn,
                  db_table_routes,
                  db_table_routes_MAI
                  ):
         self.db_server_conf = db_server_conf
-        self.db_table_atm = db_table_atm
-        self.db_table_nn = db_table_nn
+        self.db_table_atm_nn = db_table_atm_nn
         self.db_table_routes = db_table_routes
         self.db_table_routes_MAI = db_table_routes_MAI
 
@@ -32,24 +31,39 @@ class Algo:
         self.workday_time = 28_800 #рабочий день в секунах, 8 часов
         self.MAI_point = 266729320
         #self.MAI_point = None
-        self.ATMs = None
-        self.NNs = None
+        self.ATN_NN = None
         self.Routes = None
         self.Graph = None
+        self.atm_nn_dict = None
+        self.nn_atms_dict = None
 
-        self._init_atms()
-        self._init_nn()
+        self._init_atm_nn()
+        self._init_mapping_dicts()
         #self._init_routes()
         #self._init_graph()
 
 
-    def _init_atms(self):
-        atms_sql = PSQL(self.db_server_conf, self.db_table_atm)
-        self.ATMs = pd.DataFrame(atms_sql.fetch_rows(), columns=self.db_table_atm.table_columns)
+    def _init_atm_nn(self):
+        atm_nn_sql = PSQL(self.db_server_conf, self.db_table_atm_nn)
+        self.ATN_NN = pd.DataFrame(atm_nn_sql.fetch_rows(), columns=self.db_table_atm_nn.table_columns)
+        atm_nn_sql.close()
 
-    def _init_nn(self):
-        nn_sql = PSQL(self.db_server_conf, self.db_table_nn)
-        self.NNs = pd.DataFrame(nn_sql.fetch_rows(), columns=self.db_table_nn.table_columns)
+    def _init_mapping_dicts(self):
+        if not isinstance(self.ATN_NN, DataFrame):
+            raise Exception('Таблица банкоматов/обочин не инициализированна')
+
+        self.atm_nn_dict = dict()
+        self.nn_atms_dict = dict()
+        for index, row in self.ATN_NN.iterrows():
+            atm = row['atm_osmid']
+            nn = row['nn_osmid']
+            self.atm_nn_dict[atm] = nn
+
+            if nn in self.nn_atms_dict:
+                self.nn_atms_dict[nn].append(atm)
+            else:
+                self.nn_atms_dict[nn] = [atm]
+
 
     def _init_routes(self):
         routes_atms_sql = PSQL(self.db_server_conf, self.db_table_routes)
@@ -78,47 +92,85 @@ class Algo:
                 nodes=row['nodes']
             )
 
-    def get_NN_via_ATM(self, atm_osmid) -> int:
-        if not isinstance(self.NNs, DataFrame):
-            raise Exception('Таблица обочин не инициализированна')
-        df = self.NNs
-        out = df.loc[df['atm_osmid'] == atm_osmid]
-        if len(out) != 1:
-            raise Exception(f'В таблице OSMID {atm_osmid} банкомата {len(out)} != 1')
+    def check_atms_is_init(self, atms):
+        out = list()
+        for atm in atms:
+            if not atm in self.atm_nn_dict:
+                out.append(atm)
+        return out
 
-        return list(out['osmid'])[0]
+    def get_NN_via_ATM(self, atm_osmid) -> int:
+        if not isinstance(self.ATN_NN, DataFrame):
+            raise Exception('Таблица банкоматов/обочин не инициализированна')
+        try:
+            return self.atm_nn_dict[atm_osmid]
+        except Exception as e:
+            raise Exception('Банкомат не инициализирован')
+
 
     def get_ATMs_via_NN(self, nn_osmid) -> list:
-        if not isinstance(self.NNs, DataFrame):
-            raise Exception('Таблица обочин не инициализированна')
-        df = self.NNs
-        out = df.loc[df['osmid'] == nn_osmid]
+        if not isinstance(self.ATN_NN, DataFrame):
+            raise Exception('Таблица банкоматов/обочин не инициализированна')
+        try:
+            return self.nn_atms_dict[nn_osmid]
+        except Exception as e:
+            raise Exception('Обочина не инициализирован')
 
-        if len(out) == 0:
-            raise Exception('Банкоматов не найдено')
-
-        return list(out['atm_osmid'])
 
     def get_route_via_atms(self, atms:list[int]):
         nns = set()
         for atm in atms:
             nns.add(self.get_NN_via_ATM(atm))
+        route, route_time = self.get_route_via_nns(nns)
+        return route, route_time
 
-        route, time = self.get_route_via_nns(nns)
-
-        return route, time
-
-    def get_route_via_nns(self, nns:set[int]):
+    def get_route_via_nns(self, nns:list[int]):
         if not isinstance(self.Graph, DiGraph):
             raise Exception('Граф не инициализирован')
-        tsp = TSP(self.Graph, nns , start_point=self.MAI_point, end_point=self.MAI_point)
-        route, time = tsp.TSP_solution_GPT()
-        return route, time
+        if len(set(nns)) != len(nns):
+            raise Exception('Есть повторяющиеся ноды')
+        tsp = TSP(self.Graph, nns, start_point=self.MAI_point, end_point=self.MAI_point, debug=True)
+        route, route_time = tsp.TSP_solution_GPT()
+        return route, route_time
 
-    def _init_mapping_dict(self):
+    def get_route_via_atms_for_sort(self, atms:list[int]):
+        nns = set()
+        for atm in atms:
+            nns.add(self.get_NN_via_ATM(atm))
+        route, route_time = self.get_route_via_nns_for_sort(nns)
+        return route, route_time
 
 
-    def calculate_ensemble_of_routes(self, atms:list[int]):
+    def get_route_via_nns_for_sort(self, nns:list[int]):
+        if not isinstance(self.Graph, DiGraph):
+            #raise Exception('Граф не инициализирован')
+            pass
+        if len(set(nns)) != len(nns):
+            raise Exception('Есть повторяющиеся ноды')
+        #print(nns)
+        tsp = TSP(self.Graph, nns, debug=True)
+        route, route_time = tsp.TSP_solution_GPT(initial_temperature=100_000, cooling_rate=0.9999)
+        #print(route)
+        return route, route_time
+
+
+    def sort_atms_via_route(self, atms):
+        output = list()
+        optimal_route, _ = self.get_route_via_atms_for_sort(atms)
+        for node in optimal_route:
+            atms_in_node = self.nn_atms_dict[node]
+            for atm in atms_in_node:
+                if atm in atms:
+                    output.append(atm)
+        return output
+
+
+    def calculate_ensemble_of_routes(self, atms:list[int] , sort_before=True):
+        if len(set(atms)) != len(atms):
+            raise Exception('Есть повторяющиеся банкоматы')
+        #предварительная сортировка атмов для составления оптимального маршрута
+        if sort_before:
+            atms = self.sort_atms_via_route(atms)
         output = list()
         current_car = 1
 
@@ -131,9 +183,6 @@ class Algo:
         new_time = 0
         count = 0
         last_atm = atms[-1]
-        # в будущем надо входящий поток АТМов сортировать по TSP
-        # то есть сначала просчитывать ОБЩИЙ самый оптимальный маршрут
-        # а потом дробить его по машинкам
         for atm in atms:
             #print(count, len(atms))
             count += 1
@@ -167,65 +216,63 @@ class Algo:
         return output
 
 
+def test():
+
+    lol = Algo(
+        db_server_conf=ServerConf,
+        db_table_atm_nn=TableATMAllowedNew,
+        db_table_routes=TableRoutes,
+        db_table_routes_MAI=TableRoutesToMAI
+    )
 
 
+    atms_sql = PSQL(ServerConf, TableATMAllowedNew)
+    atms = atms_sql.fetch_rows()
+    atms = pd.DataFrame(atms, columns=TableATMAllowedNew.table_columns)
+    atms = list(atms['atm_osmid'])
+
+    start = time()
+    lol._init_routes()
+    print('инициализация маршрутов из БД: ',time() - start)
+    start = time()
+    lol._init_graph()
+    print('инициализация графа: ',time() - start)
 
 
+    start = time()
 
+    print('1 точка')
+    print(lol.calculate_ensemble_of_routes([408385048]))
+    print('2 точки')
+    print(lol.calculate_ensemble_of_routes([941766735, 938253590]))
+    print('3 точки')
+    print(lol.calculate_ensemble_of_routes([408385048, 938253590, 941766735]))
 
+    print('просчет тестов выше: ',time() - start)
 
-lol = Algo(
-    db_server_conf=ServerConf,
-    db_table_atm=TableATM,
-    db_table_nn=TableNearest,
-    db_table_routes=TableRoutes,
-    db_table_routes_MAI=TableRoutesToMAI
-)
-#print(lol.get_NN_via_ATM(408385048))
-#(lol.get_ATMs_via_NN(1107533819))
-#print(lol.get_NN_via_ATM(656132952))
+    start = time()
+    print('все точки')
 
-start = time()
-lol._init_routes()
-print('инициализация маршрутов из БД: ',time() - start)
-start = time()
-lol._init_graph()
-print('инициализация графа: ',time() - start)
+    test_total_atms = list()
+    test_total_routes = list()
+    test_car_ids = list()
+    test_total_time = list()
+    lolkek = lol.calculate_ensemble_of_routes(atms)
+    for kek in lolkek:
+        print(kek)
+        test_total_atms += kek['atms']
+        test_total_routes += kek['route']
+        test_car_ids.append(kek['car_id'])
+        test_total_time.append(kek['route_time'])
 
+    print('просчет со всеми точками: ',time() - start)
+    print(len(test_total_atms), set(atms) - set(test_total_atms))
+    print(len(test_total_routes), len(set(test_total_routes)))
+    print(sum(test_total_time)/max(test_car_ids))
+    #print(route)
+    start = time()
+    lol.get_route_via_atms(atms)
+    print('просчет маршрута для 1000 банкоматов шутки ради', time() - start)
 
-
-
-atms_sql = PSQL(ServerConf, TableAllowedATMs)
-atms = atms_sql.fetch_rows()
-atms = pd.DataFrame(atms, columns=TableAllowedATMs.table_columns)
-atms = list(atms['osmid'])
-
-start = time()
-
-print('1 точка')
-print(lol.calculate_ensemble_of_routes([408385048]))
-print('2 точки')
-print(lol.calculate_ensemble_of_routes([408385048, 938253590]))
-print('3 точки')
-print(lol.calculate_ensemble_of_routes([408385048, 938253590, 941766735]))
-
-print('просчет тестов выше: ',time() - start)
-
-start = time()
-print('все точки')
-
-test_total_atms = list()
-test_total_routes = list()
-lolkek = lol.calculate_ensemble_of_routes(atms)
-for kek in lolkek:
-    print(kek)
-    test_total_atms += kek['atms']
-    test_total_routes += kek['route']
-print('просчет со всеми точками: ',time() - start)
-print(len(test_total_atms), set(atms) - set(test_total_atms))
-print(len(test_total_routes), len(set(test_total_routes)))
-
-#print(route)
-start = time()
-lol.get_route_via_atms(atms)
-print('просчет маршрута для 1000 банкоматов шутки ради', time() - start)
+if __name__ == '__main__':
+    test()

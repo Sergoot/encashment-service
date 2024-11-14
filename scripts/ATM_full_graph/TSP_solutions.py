@@ -2,6 +2,8 @@
 
 import math
 import random
+from multiprocessing.util import debug
+
 import networkx as nx
 import pandas as pd
 
@@ -10,21 +12,31 @@ from scripts.Utils.PSQLutils.main import PSQL
 from networkx import DiGraph
 
 class TSP:
-    def __init__(self, graph:DiGraph, points:set[int], start_point=None, end_point=None, edge_key='travel_time'):
+    def __init__(self, graph:DiGraph, points:list[int], start_point=None, end_point=None, edge_key='travel_time', debug = False):
         self.graph = graph
         self.points = points
         self.start_point = start_point
         self.end_point = end_point
         self.edge_key = edge_key
+        self.debug = debug
 
         if self.start_point in self.points:
             raise 'Начальная точка в точках для посещения'
         if self.end_point in self.points:
             raise 'Конечная точка в точках для посещения'
 
-        for point in self.points:
-            if point not in self.graph.nodes:
-                raise ValueError(f"Нода {point} отсутствует в графе.")
+        if self.debug:
+            new_points = list()
+            for point in self.points:
+                if point in self.graph.nodes:
+                    new_points.append(point)
+
+            self.points = new_points.copy()
+        else:
+            for point in self.points:
+                if point not in self.graph.nodes:
+                    raise ValueError(f"Нода {point} отсутствует в графе.")
+
 
         if start_point not in graph.nodes and start_point:
             raise ValueError("Начальная нода отсутствует в графе.")
@@ -49,7 +61,7 @@ class TSP:
     def TSP_solution_GPT(self, initial_temperature=10000, cooling_rate=0.995, min_temperature=1):
 
         #создаем нынешний маршрут
-        current_route = list(self.points)
+        current_route = list(set(self.points))
 
         #шафлим, можно и без этого в целом
         random.shuffle(current_route)
@@ -124,4 +136,5 @@ def test():
     print(out)
 
 if __name__ == '__main__':
+    2/0
     test()
