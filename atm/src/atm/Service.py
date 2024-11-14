@@ -1,13 +1,16 @@
 import random
+import csv
 
-from src.atm.schemas import Coords, Capacity, AtmCapacity
+from src.atm.models import Atm
+from src.atm.repository import AtmRepository
+from src.atm.schemas import AtmCreate, AtmModel, Coords, Capacity, AtmCapacity
 
 class AtmService:
 
-    def __init__(self):
-        pass
+    def __init__(self, atm_repository: AtmRepository):
+        self.repo = atm_repository
 
-    def generate_filling(self, latitude: float, longitude: float):
+    def generate_filling(self) -> AtmCapacity:
 
         MIN_MAX_CAPACITY = 2500  # Минимальная вместимость бункера
         MAX_MAX_CAPACITY = 3500  # Максимальная вместимость бункера
@@ -23,15 +26,47 @@ class AtmService:
         filling_bin2 = max(0, min(random.gauss(max_capacity_bin2 / 2, max_capacity_bin2 / 4), max_capacity_bin2))
 
         return AtmCapacity(
-            priem=Capacity(
+            money_in=Capacity(
                 current=round(filling_bin1),
                 max=round(max_capacity_bin1)
             ),
-            vidacha=Capacity(
+            money_out=Capacity(
                 current=round(filling_bin2),
                 max=round(max_capacity_bin2)
             )
         )
+    
+    async def fill_db_from_csv(self, filename: str = "ATMS.csv") -> bool:
+        with open("src/files/" + filename, encoding="utf-8", newline="") as csvfile:
+            reader = csv.reader(csvfile)
+            for ind, row in enumerate(reader):
+                if ind == 0:
+                    continue
+                long = float(row[1])
+                lat = float(row[2])
+                capacity = self.generate_filling()
+
+                await self.repo.create(
+                    atm=AtmCreate(
+                        coords=Coords(lat=lat, long=long),
+                        capacity=capacity
+                    )
+                )
+        return True
+    
+    async def get_atms(self, limit: int = 10) -> list[AtmModel]:
+        atms: list[Atm] = await self.repo.get_atms(limit=limit)
+        print(atms)       
+        return [
+            AtmModel(
+                id=atm.id,
+                coords=Coords(lat=atm.lat, long=atm.long), 
+                capacity=AtmCapacity(
+                    money_in=Capacity(current=atm.money_in_current, max=atm.money_in_max),
+                    money_out=Capacity(current=atm.money_out_current, max=atm.money_out_max)
+                )
+            ) for atm in atms
+        ] 
     
     def get_random_msc_coords(self) -> Coords:
         return Coords(
