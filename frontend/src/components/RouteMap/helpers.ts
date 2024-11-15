@@ -32,6 +32,10 @@ export const mockCarRoutes = [
 
 export const teamsForSelect: SelectItem[] = mockCarRoutes.map(element => ({value: element.car_id.toString(), label: `Команда ${element.car_id}`}));
 
+export const getAtmIndex = (carId: number, routeNode: number) => {
+    return mockCarRoutes[carId - 1].route.indexOf(routeNode);
+}
+
 export const mockRandCoords: [number, number][] = [
     [
         55.763593,
