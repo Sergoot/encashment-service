@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React from 'react';
 
 import { Check, ChevronsUpDown } from "lucide-react"
 
@@ -17,29 +17,9 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import {teamsForSelect } from './RouteMap/helpers';
 
-const frameworks = [
-    {
-        value: "1",
-        label: "Команда 1",
-    },
-    {
-        value: "2",
-        label: "Команда 2",
-    },
-    {
-        value: "3",
-        label: "Команда 3",
-    },
-    {
-        value: "4",
-        label: "Команда 4",
-    },
-    {
-        value: "5",
-        label: "Команда 5",
-    },
-]
+const teams = teamsForSelect;
 
 interface TeamFormProps {
     onClick: (id: number | null) => void
@@ -48,7 +28,7 @@ interface TeamFormProps {
 const TeamForm: React.FC<TeamFormProps> = ({ onClick }) => {
 
     const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState("")
+    const [value, setValue] = React.useState<number | null>(null)
 
     const handleClick = () => {
         const id = !!value ? Number(value) : null;
@@ -68,7 +48,7 @@ const TeamForm: React.FC<TeamFormProps> = ({ onClick }) => {
                         className="w-[200px] justify-between"
                     >
                         {value
-                            ? frameworks.find((framework) => framework.value === value)?.label
+                            ? teams.find((team) => Number(team.value) === value)?.label
                             : "Выберите команду..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -79,23 +59,22 @@ const TeamForm: React.FC<TeamFormProps> = ({ onClick }) => {
                         <CommandList>
                             <CommandEmpty>No framework found.</CommandEmpty>
                             <CommandGroup>
-                                {frameworks.map((framework) => (
+                                {teams.map((team) => (
                                     <CommandItem
-                                        key={framework.value}
-                                        value={framework.value}
+                                        key={team.value}
+                                        value={team.value}
                                         onSelect={(currentValue) => {
-                                            setValue(currentValue === value ? "" : currentValue)
-                                            setTeamId(currentValue === value ? null : Number(currentValue))
+                                            setValue(Number(currentValue) === value ? null : Number(currentValue))
                                             setOpen(false)
                                         }}
                                     >
                                         <Check
                                             className={cn(
                                                 "mr-2 h-4 w-4",
-                                                value === framework.value ? "opacity-100" : "opacity-0"
+                                                value === Number(team.value) ? "opacity-100" : "opacity-0"
                                             )}
                                         />
-                                        {framework.label}
+                                        {team.label}
                                     </CommandItem>
                                 ))}
                             </CommandGroup>

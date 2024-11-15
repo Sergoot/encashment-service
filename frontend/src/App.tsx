@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import RouteMap from './components/RouteMap/RouteMap'
 import TeamForm from './components/TeamForm'
+import { mockCarRoutes } from './components/RouteMap/helpers';
 
 function App() {
 
   const [teamId, setTeamId] = useState<number | null>(null);
+  const [routeRound, setRouteRound] = useState<number | null>(null);
   const [currentRoute, setCurrentRoute] = useState<[number, number][] | null>(null)
 
   const [routeData, setRouteData] = useState<any>(null);
@@ -15,7 +17,7 @@ function App() {
   const handleChangeTeamId = (id: number | null) => {
     if (id !== null) {
       setTeamId(id);
-      setCurrentRoute([routeData[id*10+id], routeData[id*20-id]])
+      setCurrentRoute()
     }
   }
 
@@ -31,7 +33,12 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+        console.error(new Error(`Error: ${response.status}`));
+        if (teamId === null) {
+          setRouteData(null)
+        } else {
+          setRouteData(mockCarRoutes.find((el) => el.car_id === teamId)?.atms || null)
+        }
       }
 
       const data = await response.json();
@@ -53,9 +60,9 @@ function App() {
     console.log(routeData);
   }, [routeData])
 
-  if (error) {
-    return <h3>Error: {error}</h3>;
-  }
+  // if (error) {
+  //   return <h3>Error: {error}</h3>;
+  // }
 
   return (
     <div className='w-screen p-10 flex flex-col gap-10'>
