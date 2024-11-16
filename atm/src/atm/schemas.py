@@ -17,6 +17,7 @@ class AtmCapacity(BaseModel):
 
 
 class AtmCreate(BaseModel):
+    osm_id: int
     coords: Coords
     capacity: AtmCapacity
 
