@@ -39,6 +39,8 @@ class Algo:
 
         self._init_atm_nn()
         self._init_mapping_dicts()
+
+        self.it_is_first_sort = False #этот параметр отвечает за тип нынешнего решения ТСП
         #self._init_routes()
         #self._init_graph()
 
@@ -88,9 +90,27 @@ class Algo:
                 int(row['dst']),  # конечный узел
                 #path=row['direction'],  # путь или информация о пути
                 travel_time=row['time'],  # время перемещения как вес
-                total_distance=row['distance'],  # общая дистанция как дополнительный вес
+                travel_distance=row['distance'],  # общая дистанция как дополнительный вес
                 nodes=row['nodes']
             )
+
+    def _init_TSP_driver(self):
+
+        self.tsp = TSP(self.Graph, start_point=self.MAI_point, end_point=self.MAI_point, debug=True)
+        self.tsp_driver = self.tsp.TSP_soltion_DAVID_2
+        self.tsp_driver = self.tsp.TSP_solution_GPT
+        self.tsp_first_sort_kwargs = {'initial_temperature':20000, 'cooling_rate':0.999}
+        self.tsp_casual_sort_kwargs = {'initial_temperature':10000, 'cooling_rate':0.995}
+
+    #def _init_TSP_driver_first
+
+    def TSP_driver(self, points):
+        if self.it_is_first_sort:
+            route, route_time, route_distance = self.tsp_driver(points, **self.tsp_first_sort_kwargs)
+        else:
+            route, route_time, route_distance = self.tsp_driver(points, **self.tsp_first_sort_kwargs)
+        return route, route_time, route_distance
+
 
     def check_atms_is_init(self, atms):
         out = list()
@@ -118,38 +138,32 @@ class Algo:
 
 
     def get_route_via_atms(self, atms:list[int]):
-        nns = set()
+        nns = list()
         for atm in atms:
-            nns.add(self.get_NN_via_ATM(atm))
-        route, route_time = self.get_route_via_nns(nns)
-        return route, route_time
+            nns.append(self.get_NN_via_ATM(atm))
+        route, route_time, route_distance = self.get_route_via_nns(nns)
+        return route, route_time, route_distance
 
     def get_route_via_nns(self, nns:list[int]):
+        def remove_duplicates(arr):
+            seen = set()
+            result = []
+            for item in arr:
+                if item not in seen:
+                    seen.add(item)
+                    result.append(item)
+            return result
+        nns = remove_duplicates(nns)
         if not isinstance(self.Graph, DiGraph):
             raise Exception('Граф не инициализирован')
         if len(set(nns)) != len(nns):
             raise Exception('Есть повторяющиеся ноды')
-        tsp = TSP(self.Graph, nns, start_point=self.MAI_point, end_point=self.MAI_point, debug=True)
-        route, route_time = tsp.TSP_solution_GPT()
-        return route, route_time
 
-    def get_route_via_atms_for_sort(self, atms:list[int]):
-        nns = set()
-        for atm in atms:
-            nns.add(self.get_NN_via_ATM(atm))
-        route, route_time = self.get_route_via_nns_for_sort(nns)
-        return route, route_time
+        route, route_time, route_distance = self.TSP_driver(nns)
+        return route, route_time, route_distance
 
 
-    def get_route_via_nns_for_sort(self, nns:list[int]):
-        if not isinstance(self.Graph, DiGraph):
-            #raise Exception('Граф не инициализирован')
-            pass
-        if len(set(nns)) != len(nns):
-            raise Exception('Есть повторяющиеся ноды')
-        tsp = TSP(self.Graph, nns, debug=True)
-        route, route_time = tsp.TSP_solution_GPT(initial_temperature=20_000, cooling_rate=0.9999)
-        return route, route_time
+
 
     def sort_atms_via_route(self, atms, route):
         output = list()
@@ -161,11 +175,13 @@ class Algo:
         return output
 
     def first_sort(self , atms):
-        optimal_route, _ = self.get_route_via_atms_for_sort(atms)
+        self.it_is_first_sort = True
+        optimal_route, _ , _= self.get_route_via_atms(atms)
         output = self.sort_atms_via_route(atms, optimal_route)
+        self.it_is_first_sort = False
         return output
 
-    def calculate_ensemble_of_routes(self, atms:list[int] , sort_before=True):
+    def calculate_ensemble_of_routes(self, atms:list[int] , sort_before=False):
         if len(set(atms)) != len(atms):
             raise Exception('Есть повторяющиеся банкоматы')
         #предварительная сортировка атмов для составления оптимального маршрута
@@ -177,6 +193,7 @@ class Algo:
         current_atms = list()
         current_route = list()
         current_time = 0
+        current_distance = 0
 
         new_atms = list()
 
@@ -185,13 +202,15 @@ class Algo:
         for atm in atms:
             count += 1
             new_atms.append(atm)
-            new_route, route_time = self.get_route_via_atms(new_atms)
+            new_route, route_time, route_distance = self.get_route_via_atms(new_atms)
             new_time = len(new_atms) * self.atm_time + route_time
+            new_distance = route_distance
 
             if new_time <= self.workday_time:
                 current_atms = new_atms.copy()
                 current_route = new_route
                 current_time = new_time
+                current_distance = new_distance
             if new_time > self.workday_time or atm == last_atm:
                 sorted_atms = self.sort_atms_via_route(
                     current_atms.copy(),
@@ -200,7 +219,8 @@ class Algo:
                     'car_id': current_car,
                     'atms': sorted_atms,
                     'route': current_route.copy(),
-                    'route_time':current_time
+                    'route_time':current_time,
+                    'route_distance':current_distance
                 })
                 current_car += 1
                 current_atms = list()
@@ -233,7 +253,9 @@ def test():
     start = time()
     lol._init_graph()
     print('инициализация графа: ',time() - start)
-
+    start = time()
+    lol._init_TSP_driver()
+    print('инициализация тсп: ', time() - start)
 
     start = time()
 
@@ -253,22 +275,31 @@ def test():
     test_total_routes = list()
     test_car_ids = list()
     test_total_time = list()
-    lolkek = lol.calculate_ensemble_of_routes(atms)
+    test_total_distance = list()
+    lolkek = lol.calculate_ensemble_of_routes(atms, sort_before=True)
     for kek in lolkek:
         print(kek)
         test_total_atms += kek['atms']
         test_total_routes += kek['route']
         test_car_ids.append(kek['car_id'])
         test_total_time.append(kek['route_time'])
+        test_total_distance.append(kek['route_distance'])
 
     print('просчет со всеми точками: ',time() - start)
     print(len(test_total_atms), set(atms) - set(test_total_atms))
+    print('отношение сколько всего посещено точек к уникальным точкам:')
     print(len(test_total_routes), len(set(test_total_routes)))
-    print(sum(test_total_time)/max(test_car_ids))
+    print()
+    print('среднее время',sum(test_total_time)/max(test_car_ids), 'макс/мин', max(test_total_time), min(test_total_time), 'сумма', sum(test_total_time))
+    print()
+    print('средняя дистанция',sum(test_total_distance)/max(test_car_ids), 'макс/мин', max(test_total_distance), min(test_total_distance), 'сумма', sum(test_total_distance))
+
     #print(route)
     start = time()
     lol.get_route_via_atms(atms)
     print('просчет маршрута для 1000 банкоматов шутки ради', time() - start)
+
+
 
 if __name__ == '__main__':
     test()
