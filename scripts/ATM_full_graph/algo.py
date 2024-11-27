@@ -34,6 +34,8 @@ class Algo:
         self.Graph = None
         self.atm_nn_dict = None
         self.nn_atms_dict = None
+        self.current_step = None
+        self.current_tsp_driver = None
 
         self._init_atm_nn()
         self._init_mapping_dicts()
@@ -41,6 +43,7 @@ class Algo:
         self.current_tcp_driver = 0 #этот параметр отвечает за тип нынешнего решения ТСП
         #self._init_routes()
         #self._init_graph()
+
 
 
     def _init_atm_nn(self):
@@ -105,97 +108,38 @@ class Algo:
 
         self.tsp = TSP(self.Graph, start_point=self.MAI_point, end_point=self.MAI_point, debug=True)
 
-        self.tsp_drivers = [
+    def init_david_gpt__david_gpt(self):
+        #первичная обработка
+        self.tsp_drivers_first = [
             self.tsp.TSP_soltion_DAVID_2,
-            #self.tsp.TSP_solution_GPT,
-            #self.tsp.TSP_solution_GPT,
-            self.tsp.TSP_soltion_DAVID_2,
-            ]
-        self.tsp_drivers_kwargs = [
-            #{},
-            {'initial_temperature': 20000, 'cooling_rate': 0.999}, #это для первичной обработки по tsp gpt
-            {'initial_temperature': 10000, 'cooling_rate': 0.995}
+            self.tsp.TSP_solution_GPT
         ]
-
-    def init_david_david(self):
-        self.tsp_drivers = [
-            self.tsp.TSP_soltion_DAVID_2,
-            self.tsp.TSP_soltion_DAVID_2,
-        ]
-        self.tsp_drivers_kwargs = [
+        self.tsp_drivers_kwargs_first = [
             {},
-            {}
+            {'initial_temperature':10000, 'cooling_rate':0.995}
         ]
 
-    def init_david_gpt(self):
-        self.tsp_drivers = [
+        self.tsp_drivers_main = [
             self.tsp.TSP_soltion_DAVID_2,
-            self.tsp.TSP_solution_GPT,
+            #self.tsp.TSP_solution_GPT
         ]
-        self.tsp_drivers_kwargs = [
+        self.tsp_drivers_kwargs_main = [
             {},
-            {'initial_temperature': 10000, 'cooling_rate': 0.995}
+            #{'initial_temperature': 10000, 'cooling_rate': 0.995}
         ]
 
-    def init_gpt_david(self):
-        self.tsp_drivers = [
-            self.tsp.TSP_solution_GPT,
-            self.tsp.TSP_soltion_DAVID_2,
-        ]
-        self.tsp_drivers_kwargs = [
-            {'initial_temperature': 20000, 'cooling_rate': 0.999},
-            {}
-        ]
-    def init_gpt_gpt(self):
-        self.tsp_drivers = [
-            self.tsp.TSP_solution_GPT,
-            self.tsp.TSP_solution_GPT,
-        ]
-        self.tsp_drivers_kwargs = [
-            {'initial_temperature': 20000, 'cooling_rate': 0.999},
-            {'initial_temperature': 10000, 'cooling_rate': 0.995}
-        ]
-    def init_gpt(self):
-        self.tsp_drivers = [
-            self.tsp.TSP_solution_GPT,
-        ]
-        self.tsp_drivers_kwargs = [
-            {'initial_temperature': 10000, 'cooling_rate': 0.995},
-        ]
-    def init_david(self):
-        self.tsp_drivers = [
-            self.tsp.TSP_soltion_DAVID_2,
-        ]
-        self.tsp_drivers_kwargs = [
-            {},
-        ]
+    def tsp_solution(self, points):
+        if self.current_step == 'first':
+            route, route_time, route_distance = self.tsp_drivers_first[self.current_tcp_driver](
+                points,
+                **self.tsp_drivers_kwargs_first[self.current_tcp_driver]
+            )
+        elif self.current_step == 'main':
+            route, route_time, route_distance = self.tsp_drivers_main[self.current_tcp_driver](
+                points,
+                **self.tsp_drivers_kwargs_main[self.current_tcp_driver]
+            )
 
-    def init_david(self):
-        self.tsp_drivers = [
-            self.tsp.TSP_soltion_DAVID_2,
-        ]
-        self.tsp_drivers_kwargs = [
-            {},
-        ]
-
-    def init_david_gpt_david(self):
-        self.tsp_drivers = [
-            self.tsp.TSP_soltion_DAVID_2,
-            self.tsp.TSP_solution_GPT,
-            self.tsp.TSP_soltion_DAVID_2
-        ]
-        self.tsp_drivers_kwargs = [
-            {},
-            {'initial_temperature': 20000, 'cooling_rate': 0.999},
-            {}
-        ]
-
-
-    def TSP_driver(self, points):
-        route, route_time, route_distance = self.tsp_drivers[self.current_tcp_driver](
-            points,
-            **self.tsp_drivers_kwargs[self.current_tcp_driver]
-        )
         return route, route_time, route_distance
 
 
@@ -238,7 +182,7 @@ class Algo:
         route, route_time, route_distance = self.get_route_via_nns(nns)
         return route, route_time, route_distance
 
-    def get_route_via_nns(self, nns:list[int])->(list[int],int,int):
+    def get_route_via_nns(self, nns:list[int] , with_start_stop=False)->(list[int],int,int):
         nns = list(filter(lambda a: a != self.MAI_point, nns)) #по большому счету костыль, тк в иногда
         #в маршрут под вычисление может попасть стартовая точка
         def remove_duplicates(arr):
@@ -255,7 +199,12 @@ class Algo:
         if len(set(nns)) != len(nns):
             raise Exception('Есть повторяющиеся ноды')
 
-        route, route_time, route_distance = self.TSP_driver(nns)
+        route, route_time, route_distance = self.tsp_solution(nns)
+        if not with_start_stop:
+            if route[0] == self.MAI_point:
+                route = route[1:]
+            if route[-1] == self.MAI_point:
+                route = route[:-1]
         return route, route_time, route_distance
 
     def sort_atms_via_route(self, atms, route):
@@ -336,23 +285,11 @@ class Algo:
         nns_to_calc = self.atms_to_nns(atms)
         #первичная сортировка НН, может быть использовано несколько драйверов
         #все зависит от инициализированного массива драйверов
-        #ПОСЛЕДНИЙ - БАЗОВЫЙ ПЕРЕД НЕПОСРЕДСТВЕННОЙ ВЫДАЧЕЙ, поэтому -1
-        for index in range(len(self.tsp_drivers) - 1):
-
-            #обьявляем каким методом делаем первичную сортировку
-            self.current_tcp_driver = index
+        self.current_step = 'first'
+        for index in range(len(self.tsp_drivers_first)):
+            self.current_tcp_driver = index #смена драйвера по номеру
             nns_to_calc , _, _ = self.get_route_via_nns(nns_to_calc)  #непосредственно сортировка
 
-            #убираем начальную и конечную ноду ЕСЛИ это маевник
-            #условие полукостльные тк не хочется контролировать возвращает ли конкретный драйвер
-            if nns_to_calc[0] == self.MAI_point:
-                nns_to_calc = nns_to_calc[1:]
-            if nns_to_calc[-1] == self.MAI_point:
-                nns_to_calc = nns_to_calc[:-1]
-
-
-        #ставим базовый драйвер, тот что последний в инициализированном массиве драйверов
-        self.current_tcp_driver = len(self.tsp_drivers) - 1
         #обьявление необходимых переменных
         output = list()
         current_car = 1
@@ -362,12 +299,21 @@ class Algo:
         current_distance = 0
         count = 0
         #перебор всех NN
+        self.current_step = 'main'
         for nn in nns_to_calc:
+            print(count)
+            count += 1
             #добавляем NN к текущим
             current_nns.append(nn)
 
-            #просчет маршрута, времени и тд
-            new_route, route_time, route_distance = self.get_route_via_nns(current_nns)
+            for index in range(len(self.tsp_drivers_main)):
+                self.current_tcp_driver = index  # смена драйвера по номеру
+                #конечное услове
+                new_route, route_time, route_distance = self.get_route_via_nns(
+                    nns_to_calc,
+                    index == len(self.tsp_drivers_main)-1 #условие при котором в маршрут добавятся начальные и конечные точки
+                )
+
             current_atms = self.sort_atms_via_route(atms, current_route)
             new_time = len(current_atms) * self.atm_time + route_time
             new_distance = route_distance
@@ -429,6 +375,7 @@ def test():
     print('инициализация графа: ',time() - start)
     start = time()
     lol._init_TSP_driver()
+    lol.init_david_gpt__david_gpt()
     print('инициализация тсп: ', time() - start)
 
 
