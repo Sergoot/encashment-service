@@ -19,6 +19,7 @@ class TSP:
         self.end_point = end_point
         self.edge_key = edge_key
         self.debug = debug
+        #self.with_start_end = True
 
 
         if start_point not in graph.nodes and start_point:
@@ -28,10 +29,13 @@ class TSP:
             raise ValueError("Начальная нода отсутствует в графе.")
 
     def get_current_route(self, route):
+        #if self.with_start_end:
         if self.start_point:
             route = [self.start_point] + route
         if self.end_point:
             route = route + [self.end_point]
+        #    return route
+        #else:
         return route
 
     def _calculate_route_length(self, route:list, key_:str):
@@ -49,11 +53,18 @@ class TSP:
         key = 'travel_distance'
         return self._calculate_route_length(route, key)
 
-    def TSP_solution_GPT(self, points, initial_temperature=10000, cooling_rate=0.995, min_temperature=1):
+    def TSP_solution_GPT(self,
+                         points,
+                         initial_temperature=10000,
+                         cooling_rate=0.995,
+                         min_temperature=1 ,
+                         random_shuffle = False,
+                         **useless_shit):
         points = points[:]
 
         #шафлим, можно и без этого в целом
-        random.shuffle(points)
+        if random_shuffle:
+            random.shuffle(points)
 
         #создаем нынешний маршрут с точкой отправления и прибытия
         current_route_with_start_stop = self.get_current_route(points)
@@ -132,11 +143,10 @@ class TSP:
                 print(error_count, access_count, total_nodes_count)
         return  total_time, output_points
 
-    def TSP_soltion_DAVID_2(self, points:list[int]):
+    def TSP_soltion_DAVID_2(self, points:list[int] , **useless_shit):
         points = points.copy()
         current_node = self.start_point
         route = [current_node]
-        total_time = 0  # Общее время маршрута
 
         while points:
             # Найти ближайшую точку из оставшихся
@@ -148,16 +158,20 @@ class TSP:
             # Добавить узел в маршрут
             route.append(next_node)
 
-            # Увеличить общее время
-            total_time += travel_cost
-
             # Удалить посещенную точку из оставшихся
             points.remove(next_node)
 
             # Переход к следующему узлу
             current_node = next_node
 
-        return route, total_time
+        route.append(self.end_point)
+        #if not self.with_start_end:
+        #    route.remove(self.start_point)
+        #    route.remove(self.end_point)
+
+        total_time = self.calculate_time(route)
+        total_distance = self.calculate_distance(route)
+        return route, total_time, total_distance
 
 
 
