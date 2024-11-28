@@ -11,15 +11,10 @@ class Capacity(BaseModel):
     max: int
 
 
-class AtmCapacity(BaseModel):
-    money_in: Capacity
-    money_out: Capacity
-
-
 class AtmCreate(BaseModel):
     osm_id: int
     coords: Coords
-    capacity: AtmCapacity
+    capacity: Capacity
 
 
 class AtmModel(AtmCreate):
@@ -27,8 +22,7 @@ class AtmModel(AtmCreate):
 
 
 class ChangeAtmCapacity(BaseModel):
-    money_in_current: float
-    money_out_current: float
+    money_current: float
 
 class BaseResponse(BaseModel):
     status: bool

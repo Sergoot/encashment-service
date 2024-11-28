@@ -7,7 +7,7 @@ from src.database import get_session
 from src.atm.Service import AtmService
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.atm.schemas import AtmCapacity, AtmModel, BaseResponse, Capacity, ChangeAtmCapacity, Coords
+from src.atm.schemas import AtmModel, BaseResponse, Capacity, ChangeAtmCapacity, Coords
 
 atm_router = APIRouter(
     prefix="/atm",
@@ -37,7 +37,7 @@ async def get_closest_atms_by_distance(radius: int, lat: float, long: float, db:
 @atm_router.get("/{atm_id}")
 async def get_atm_by_id(atm_id: int, db: Annotated[AsyncSession, Depends(get_session)]) -> AtmModel:
     """ Эндпоинт для получения банкомата из бд """
-    res = await AtmRepository(db=db).get_atm_by_id(atm_id=atm_id)
+    res: Atm = await AtmRepository(db=db).get_atm_by_id(atm_id=atm_id)
     if not res:
         raise HTTPException(status_code=404, detail="Not found")
 
@@ -45,24 +45,23 @@ async def get_atm_by_id(atm_id: int, db: Annotated[AsyncSession, Depends(get_ses
         id=res.id,
         osm_id=res.osm_id,
         coords=Coords(lat=res.lat, long=res.long),
-        capacity=AtmCapacity(
-            money_in=Capacity(current=res.money_in_current, max=res.money_in_max),
-            money_out=Capacity(current=res.money_out_current, max=res.money_out_max)
-        )
+        capacity=Capacity(current=res.money_current, max=res.money_max)
     )
 
 
 @atm_router.patch("/{atm_id}")
 async def change_atm_capacity(atm_id: int, data: ChangeAtmCapacity, db: Annotated[AsyncSession, Depends(get_session)]) -> BaseResponse:
     """ Эндпоинт для изменения наполненности банкомата """
-    res = (await db.execute(select(Atm).where(Atm.id == atm_id))).scalar_one_or_none()
+    res: Atm = await AtmRepository(db=db).get_atm_by_id(atm_id=atm_id)
     if not res:
         raise HTTPException(status_code=404, detail="Not found")
     
+    if data.money_current > res.money_max:
+        raise HTTPException(status_code=400, detail="Value is bigged than max capacity atm {atm_id}")
+    
     await db.execute(
         update(Atm).where(Atm.id == atm_id).values(
-            money_in_current=data.money_in_current,
-            money_out_current=data.money_out_current
+            money_current=data.money_current,
         )
     )
     await db.commit()
