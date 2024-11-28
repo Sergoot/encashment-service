@@ -29,15 +29,21 @@ async def fill_db(db: Annotated[AsyncSession, Depends(get_session)]) -> BaseResp
     raise HTTPException(status_code=400, detail="Failed")
 
 
+@atm_router.get("/closest")
+async def get_closest_atms_by_distance(radius: int, lat: float, long: float, db: Annotated[AsyncSession, Depends(get_session)])-> list[AtmModel]:
+    return await AtmService(atm_repository=AtmRepository(db=db)).get_closest_atms_to_lat_long_by_radius(lat=lat, long=long, radius=radius)
+
+
 @atm_router.get("/{atm_id}")
 async def get_atm_by_id(atm_id: int, db: Annotated[AsyncSession, Depends(get_session)]) -> AtmModel:
     """ Эндпоинт для получения банкомата из бд """
-    res = (await db.execute(select(Atm).where(Atm.id == atm_id))).scalar_one_or_none()
+    res = await AtmRepository(db=db).get_atm_by_id(atm_id=atm_id)
     if not res:
         raise HTTPException(status_code=404, detail="Not found")
 
     return AtmModel(
         id=res.id,
+        osm_id=res.osm_id,
         coords=Coords(lat=res.lat, long=res.long),
         capacity=AtmCapacity(
             money_in=Capacity(current=res.money_in_current, max=res.money_in_max),
@@ -46,7 +52,7 @@ async def get_atm_by_id(atm_id: int, db: Annotated[AsyncSession, Depends(get_ses
     )
 
 
-@atm_router.patch("")
+@atm_router.patch("/{atm_id}")
 async def change_atm_capacity(atm_id: int, data: ChangeAtmCapacity, db: Annotated[AsyncSession, Depends(get_session)]) -> BaseResponse:
     """ Эндпоинт для изменения наполненности банкомата """
     res = (await db.execute(select(Atm).where(Atm.id == atm_id))).scalar_one_or_none()

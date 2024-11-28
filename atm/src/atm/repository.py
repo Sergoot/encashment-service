@@ -24,6 +24,12 @@ class AtmRepository:
         )
         await self.db.commit()
     
+    async def get_atm_by_id(self, atm_id: int) -> AtmModel:
+        res = await self.db.execute(
+            select(Atm).where(Atm.id==atm_id)
+        )
+        return res.scalar_one_or_none()
+    
     async def get_atms(self, limit: int = 10) -> list[AtmModel]:
         res = await self.db.execute(
             select(Atm).limit(limit=limit)
@@ -32,27 +38,27 @@ class AtmRepository:
     
     def get_radius_range(self, lat: float, long: float, radius: int = 100):
         # Earth's radius in meters
-        R = 6371000  # Radius of Earth in meters
+        earth_radius = 6371000
         
-        # Convert latitude and longitude to radians
-        lat_rad = math.radians(lat)
-        lon_rad = math.radians(long)
+        # Convert radius from meters to radians
+        radius_rad = radius / earth_radius
         
-        # Calculate changes in latitude and longitude
-        dlat = math.sqrt(1 / (R * math.cos(lat_rad))) * radius  # 100m in degrees
-        dlon = math.sqrt(1 / R) * radius # 100m in degrees
+        # Calculate angular radius in radians
+        angular_radius = 2 * math.asin(radius_rad)
         
-        # Calculate new coordinates
-        north_lat = lat + dlat
-        south_lat = lat - dlat
-        east_lon = long + dlon
-        west_lon = long - dlon
+        # Calculate latitude range
+        min_lat = lat - math.degrees(angular_radius)
+        max_lat = lat + math.degrees(angular_radius)
+        
+        # Calculate longitude range
+        # Note: This assumes a small radius, so we can use approximation
+        lon_range = math.degrees(radius_rad * math.cos(math.radians(lat)))
         
         return {
-            'lat_max': north_lat,
-            'lat_min': south_lat,
-            'long_max': east_lon,
-            'long_min': west_lon
+            'lat_max': max_lat,
+            'lat_min': min_lat,
+            'long_max': long + lon_range,
+            'long_min': long - lon_range
         }
     
     async def get_atms_by_radius_to_atm(self, atm_id: int, radius: int = 100):
@@ -68,7 +74,7 @@ class AtmRepository:
         return res.scalars().all()
     
     async def get_atms_by_radius_to_lat_long(self, lat: float, long: float, radius: int = 100):
-        ranges = self.get_radius_range(lat=lat, long=long)
+        ranges = self.get_radius_range(lat=lat, long=long, radius=radius)
         res = await self.db.execute(
             select(Atm) \
             .where(Atm.long.between(ranges["long_min"], ranges["long_max"])) \

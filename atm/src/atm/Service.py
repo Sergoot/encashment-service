@@ -58,7 +58,7 @@ class AtmService:
     
     async def get_atms(self, limit: int = 10) -> list[AtmModel]:
         atms: list[Atm] = await self.repo.get_atms(limit=limit)
-        print(atms)       
+
         return [
             AtmModel(
                 id=atm.id,
@@ -71,13 +71,18 @@ class AtmService:
             ) for atm in atms
         ] 
     
-    # def get_random_msc_coords(self) -> Coords:
-    #     return Coords(
-    #         lat = 55 + random.randint(753904, 909185) / 1000000,
-    #         long = 37 + random.randint(372128, 844768) / 1000000
-    #     )
-
-    # def generate_atm_in_moscow(self):
-    #     coords = self.get_random_msc_coords()
-    #     capacity = self.generate_filling(latitude=coords.lat, longitude=coords.long)
-    #     return {"coords": coords, "capacity": capacity}
+    async def get_closest_atms_to_lat_long_by_radius(self, lat: float, long: float, radius: int) -> list[AtmModel]:
+        atms: list[Atm] = await self.repo.get_atms_by_radius_to_lat_long(lat=lat, long=long, radius=radius)
+        if not atms:
+            return []
+        return [
+            AtmModel(
+                id=atm.id,
+                osm_id=atm.osm_id,
+                coords=Coords(lat=atm.lat, long=atm.long), 
+                capacity=AtmCapacity(
+                    money_in=Capacity(current=atm.money_in_current, max=atm.money_in_max),
+                    money_out=Capacity(current=atm.money_out_current, max=atm.money_out_max)
+                )
+            ) for atm in atms
+        ] 
