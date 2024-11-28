@@ -111,21 +111,29 @@ class Algo:
     def init_david_gpt__david_gpt(self):
         #первичная обработка
         self.tsp_drivers_first = [
-            self.tsp.TSP_soltion_DAVID_2,
-            self.tsp.TSP_solution_GPT
-        ]
-        self.tsp_drivers_kwargs_first = [
-            {},
-            {'initial_temperature':10000, 'cooling_rate':0.995}
+            #self.tsp.TSP_solution_NOTHING
+            self.tsp.TSP_soltion_DAVID,
+            self.tsp.TSP_solution_ROLLER_MOBSTER,
+            self.tsp.TSP_solution_GPT,
         ]
 
+        self.tsp_drivers_kwargs_first = [
+            {},
+            {},
+            {'initial_temperature':20000, 'cooling_rate':0.999},
+        ]
+
+        #вторичная обработка
         self.tsp_drivers_main = [
-            self.tsp.TSP_soltion_DAVID_2,
-            #self.tsp.TSP_solution_GPT
+            #self.tsp.TSP_solution_NOTHING
+            self.tsp.TSP_soltion_DAVID,
+            self.tsp.TSP_solution_ROLLER_MOBSTER,
+            self.tsp.TSP_solution_GPT,
         ]
         self.tsp_drivers_kwargs_main = [
             {},
-            #{'initial_temperature': 10000, 'cooling_rate': 0.995}
+            {},
+            {'initial_temperature': 10000, 'cooling_rate': 0.995},
         ]
 
     def tsp_solution(self, points):
@@ -163,6 +171,7 @@ class Algo:
         for atm in atms:
             nn = self.atm_nn_dict[atm]
             output_nn.append(nn)
+        output_nn = self.remove_duplicates(output_nn)
         return output_nn
 
 
@@ -182,18 +191,20 @@ class Algo:
         route, route_time, route_distance = self.get_route_via_nns(nns)
         return route, route_time, route_distance
 
+    def remove_duplicates(self, arr):
+        seen = set()
+        result = []
+        for item in arr:
+            if item not in seen:
+                seen.add(item)
+                result.append(item)
+        return result
+
     def get_route_via_nns(self, nns:list[int] , with_start_stop=False)->(list[int],int,int):
-        nns = list(filter(lambda a: a != self.MAI_point, nns)) #по большому счету костыль, тк в иногда
+        #nns = list(filter(lambda a: a != self.MAI_point, nns)) #по большому счету костыль, тк в иногда
         #в маршрут под вычисление может попасть стартовая точка
-        def remove_duplicates(arr):
-            seen = set()
-            result = []
-            for item in arr:
-                if item not in seen:
-                    seen.add(item)
-                    result.append(item)
-            return result
-        nns = remove_duplicates(nns)
+
+        nns = self.remove_duplicates(nns)
         if not isinstance(self.Graph, DiGraph):
             raise Exception('Граф не инициализирован')
         if len(set(nns)) != len(nns):
@@ -219,63 +230,6 @@ class Algo:
         return output
 
 
-    def OLD_calculate_ensemble_of_routes_OLD(self, atms:list[int] , sort_before=True):
-        if len(set(atms)) != len(atms):
-            raise Exception('Есть повторяющиеся банкоматы')
-        #предварительная сортировка атмов для составления оптимального маршрута
-
-        if sort_before:
-            self.current_tcp_driver = 0
-            optimal_route, _, _ = self.get_route_via_atms(atms)
-            atms = self.sort_atms_via_route(atms, optimal_route)
-
-        self.current_tcp_driver = 1
-
-        output = list()
-        current_car = 1
-
-        current_atms = list()
-        current_route = list()
-        current_time = 0
-        current_distance = 0
-
-        new_atms = list()
-
-        count = 0
-        last_atm = atms[-1]
-        for atm in atms:
-            count += 1
-            new_atms.append(atm)
-
-            new_route, route_time, route_distance = self.get_route_via_atms(new_atms)
-            new_time = len(new_atms) * self.atm_time + route_time
-            new_distance = route_distance
-
-            if new_time <= self.workday_time:
-                current_atms = new_atms.copy()
-                current_route = new_route
-                current_time = new_time
-                current_distance = new_distance
-            if new_time > self.workday_time or atm == last_atm:
-                sorted_atms = self.sort_atms_via_route(
-                    current_atms.copy(),
-                    current_route.copy()[1:-1])
-                output.append({
-                    'car_id': current_car,
-                    'atms': sorted_atms,
-                    'route': current_route.copy(),
-                    'route_time':current_time,
-                    'route_distance':current_distance
-                })
-                current_car += 1
-                current_atms = list()
-                current_route = list()
-                current_time = 0
-                new_atms = list()
-                new_atms.append(atm)
-
-        return output
-
     def calculate_ensemble_of_routes(self, atms:list[int]):
 
         if len(set(atms)) != len(atms):
@@ -283,6 +237,7 @@ class Algo:
 
         #конвертирование АТМов в НН
         nns_to_calc = self.atms_to_nns(atms)
+        print('НН:',len(nns_to_calc))
         #первичная сортировка НН, может быть использовано несколько драйверов
         #все зависит от инициализированного массива драйверов
         self.current_step = 'first'
@@ -298,25 +253,23 @@ class Algo:
         current_time = 0
         current_distance = 0
         count = 0
+
         #перебор всех NN
-        self.current_step = 'main'
         for nn in nns_to_calc:
-            print(count)
+            #print(count)
             count += 1
             #добавляем NN к текущим
             current_nns.append(nn)
-
+            self.current_step = 'main'
             for index in range(len(self.tsp_drivers_main)):
                 self.current_tcp_driver = index  # смена драйвера по номеру
                 #конечное услове
-                new_route, route_time, route_distance = self.get_route_via_nns(
-                    nns_to_calc,
+                new_route, new_time, new_distance = self.get_route_via_nns(
+                    current_nns,
                     index == len(self.tsp_drivers_main)-1 #условие при котором в маршрут добавятся начальные и конечные точки
                 )
-
-            current_atms = self.sort_atms_via_route(atms, current_route)
-            new_time = len(current_atms) * self.atm_time + route_time
-            new_distance = route_distance
+            new_atms = self.sort_atms_via_route(atms, new_route)
+            new_time = len(new_atms) * self.atm_time + new_time
 
             #если мы укладываемся в рабочий день с новым маршрутом
             if new_time <= self.workday_time:
@@ -324,6 +277,7 @@ class Algo:
                 current_route = new_route
                 current_time = new_time
                 current_distance = new_distance
+                current_atms = new_atms
 
             #если время вышло, или нода последняя, записать в output
             if new_time > self.workday_time or nn == nns_to_calc[-1]:
@@ -394,7 +348,7 @@ def test():
         test_car_ids.append(kek['car_id'])
         test_total_time.append(kek['route_time'])
         test_total_distance.append(kek['route_distance'])
-        print(kek['car_id'], kek['route'])
+        print(kek)
     print()
     print('всего задействовано машин:' , max(test_car_ids))
     print('просчет со всеми точками: ',time() - start)
