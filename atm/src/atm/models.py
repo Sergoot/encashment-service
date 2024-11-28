@@ -10,8 +10,8 @@ class Atm(Base):
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
     long = Column(Float)
     lat = Column(Float)
-    priem_current = Column(Float)
-    priem_max = Column(Float)
-    vidacha_current = Column(Float)
-    vidacha_max = Column(Float)
+    money_in_current = Column(Float)
+    money_in_max = Column(Float)
+    money_out_current = Column(Float)
+    money_out_max = Column(Float)
 

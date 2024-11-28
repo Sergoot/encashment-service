@@ -12,8 +12,8 @@ class Capacity(BaseModel):
 
 
 class AtmCapacity(BaseModel):
-    priem: Capacity
-    vidacha: Capacity
+    money_in: Capacity
+    money_out: Capacity
 
 
 class AtmCreate(BaseModel):
@@ -26,9 +26,8 @@ class AtmModel(AtmCreate):
 
 
 class ChangeAtmCapacity(BaseModel):
-    id: int
-    priem: float
-    vidacha: float
+    money_in_current: float
+    money_out_current: float
 
 class BaseResponse(BaseModel):
     status: bool
