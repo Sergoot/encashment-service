@@ -4,7 +4,6 @@ import aiohttp
 from bff.application.common.interfaces import ApiClient
 
 
-
 class InternalApiClientAdapter(ApiClient):
     def __init__(
         self, 
@@ -28,6 +27,16 @@ class InternalApiClientAdapter(ApiClient):
     async def post(self, url: str, data: dict | list) -> dict:
         async with aiohttp.ClientSession() as session:
             async with session.post(
+                f"{self._base_uri}/{url}", json=data,
+            ) as raw_result:
+                raw_result.raise_for_status()
+                result: dict = await raw_result.json()
+
+                return result
+    
+    async def patch(self, url: str, data: dict | list) -> dict:
+        async with aiohttp.ClientSession() as session:
+            async with session.patch(
                 f"{self._base_uri}/{url}", json=data,
             ) as raw_result:
                 raw_result.raise_for_status()

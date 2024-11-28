@@ -4,7 +4,7 @@ from sqlalchemy import select, update
 from src.atm.repository import AtmRepository
 from src.atm.models import Atm
 from src.database import get_session
-from src.atm.Service import AtmService
+from src.atm.service import AtmService
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.atm.schemas import AtmModel, BaseResponse, Capacity, ChangeAtmCapacity, Coords
@@ -57,7 +57,7 @@ async def change_atm_capacity(atm_id: int, data: ChangeAtmCapacity, db: Annotate
         raise HTTPException(status_code=404, detail="Not found")
     
     if data.money_current > res.money_max:
-        raise HTTPException(status_code=400, detail="Value is bigged than max capacity atm {atm_id}")
+        raise HTTPException(status_code=400, detail="Value is bigger than max capacity atm {atm_id}")
     
     await db.execute(
         update(Atm).where(Atm.id == atm_id).values(
