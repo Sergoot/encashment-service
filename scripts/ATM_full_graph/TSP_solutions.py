@@ -60,7 +60,9 @@ class TSP:
                          min_temperature=1 ,
                          random_shuffle = False,
                          **useless_shit):
+        
         points = points[:]
+        
 
         #шафлим, можно и без этого в целом
         if random_shuffle:
@@ -75,6 +77,7 @@ class TSP:
         #записываем лучший маршрут/время
         best_route = current_route_with_start_stop.copy()
         best_time = current_time
+        start_time = best_time
 
         #берем начальную температуру
         temperature = initial_temperature
@@ -109,41 +112,18 @@ class TSP:
             # Понижаем температуру
             temperature *= cooling_rate
         best_distance = self.calculate_distance(best_route)
+        if start_time > best_time:
+            pass
+            #print(start_time, best_time)
         return best_route, best_time, best_distance
 
-    def TSP_solution_DAVID(self, points):
-        def find_closest_node(start_node):
-            lengths = nx.single_source_dijkstra_path_length(self.graph, start_node, weight = self.edge_key)
-
-            # Исключить начальную ноду из поиска
-            lengths.pop(start_node, None)
-
-            # Найти ноду с минимальной длиной пути
-            closest_node = min(lengths, key=lengths.get)
-            return closest_node, lengths[closest_node]
-
-        total_time = 0
-        output_points = []
-        access_count = 0
-        error_count = 0
-        current_node = self.start_point
-
-        total_nodes_count = len(self.graph.nodes)
-        for point in points:
-            try:
-                current_node, current_time = find_closest_node(point)
-                total_time += current_time + 300
-                output_points.append(current_node)
-                self.graph.remove_node(current_node)
-                access_count += 1
-                print(error_count, access_count, total_nodes_count)
-            except Exception as e:
-                raise e
-                error_count += 1
-                print(error_count, access_count, total_nodes_count)
-        return  total_time, output_points
-
-    def TSP_soltion_DAVID_2(self, points:list[int] , **useless_shit):
+    def TSP_soltion_DAVID(self, points:list[int], **useless_shit):
+        """
+        алгоритм берет стартовую точку в качестве начальной и далее идет к ближайшей и так до конца
+        :param points: точки маршрута
+        :param useless_shit: свалка
+        :return: лучший маршрут, время и дистанция
+        """
         points = points.copy()
         current_node = self.start_point
         route = [current_node]
@@ -172,6 +152,48 @@ class TSP:
         total_time = self.calculate_time(route)
         total_distance = self.calculate_distance(route)
         return route, total_time, total_distance
+
+    def TSP_solution_ROLLER_MOBSTER(self, points:list[int], **useless_shit):
+        """
+        алгоритм циклически сдвигает элементы входного массива и смотрит что из этого получается
+        :param points: точки маршрута
+        :param useless_shit: свалка
+        :return: лучший маршрут, время и дистанция
+        """
+        #обьявляем нынешние параметры лучшими
+        best_route = self.get_current_route(points)
+        best_time = self.calculate_time(best_route)
+        best_distance = self.calculate_distance(best_route)
+
+        start_time = best_time
+
+        #начинаем делать циклический сдвиг влево на 1 элемент
+        for index in range(len(points) - 1):
+            points = points[1:] + points[:1] #сам сдвиг
+
+            #записываем нынешние характеристики пути
+            current_route = self.get_current_route(points)
+            current_time = self.calculate_time(current_route)
+            current_distance = self.calculate_distance(current_route)
+
+            #проверяем выигрыш по времени
+            #если выиграли - теперь это наши лучшие результаты
+            if current_time < best_time:
+                best_route = current_route
+                best_time = current_time
+                best_distance = current_distance
+        #вернуть лучшие результаты
+        if start_time != best_time:
+            pass
+            #print(start_time, best_time)
+        return best_route, best_time, best_distance
+
+    def TSP_solution_NOTHING(self, points:list[int], **useless_shit):
+        current_route = self.get_current_route(points)
+        current_time = self.calculate_time(current_route)
+        current_distance = self.calculate_distance(current_route)
+        return current_route, current_time, current_distance
+
 
 
 
