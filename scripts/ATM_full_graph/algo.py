@@ -108,10 +108,9 @@ class Algo:
 
         self.tsp = TSP(self.Graph, start_point=self.MAI_point, end_point=self.MAI_point, debug=True)
 
-    def init_david_gpt__david_gpt(self):
+    def init_david_roller_gpt__david_roller_gpt(self):
         #первичная обработка
         self.tsp_drivers_first = [
-            #self.tsp.TSP_solution_NOTHING
             self.tsp.TSP_soltion_DAVID,
             self.tsp.TSP_solution_ROLLER_MOBSTER,
             self.tsp.TSP_solution_GPT,
@@ -125,7 +124,6 @@ class Algo:
 
         #вторичная обработка
         self.tsp_drivers_main = [
-            #self.tsp.TSP_solution_NOTHING
             self.tsp.TSP_soltion_DAVID,
             self.tsp.TSP_solution_ROLLER_MOBSTER,
             self.tsp.TSP_solution_GPT,
@@ -134,6 +132,36 @@ class Algo:
             {},
             {},
             {'initial_temperature': 10000, 'cooling_rate': 0.995},
+        ]
+
+    def david___david(self):
+        # первичная обработка
+        self.tsp_drivers_first = [
+            self.tsp.TSP_soltion_DAVID,
+        ]
+        self.tsp_drivers_kwargs_first = [
+            {},
+        ]
+        # вторичная обработка
+        self.tsp_drivers_main = [
+            self.tsp.TSP_soltion_DAVID,
+        ]
+        self.tsp_drivers_kwargs_main = [
+            {},
+        ]
+
+    def empty___david(self):
+        # первичная обработка
+        self.tsp_drivers_first = [
+        ]
+        self.tsp_drivers_kwargs_first = [
+        ]
+        # вторичная обработка
+        self.tsp_drivers_main = [
+            self.tsp.TSP_soltion_DAVID,
+        ]
+        self.tsp_drivers_kwargs_main = [
+            {},
         ]
 
     def tsp_solution(self, points):
