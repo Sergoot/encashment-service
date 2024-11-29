@@ -3,6 +3,82 @@ import { SelectItem } from "@/types";
 export const startLocation = [25.229762, 55.289311];
 export const apiKey = import.meta.env.VITE_APP_YMAP_KEY as string;
 
+export const startNodeCoords = [
+    { lat: "55.7757235", lon: "37.4976773" }, // 4844411022
+    { lat: "55.7230995", lon: "37.6215796" }, // 939217288
+    { lat: "55.7580955", lon: "37.6158086" }, // 1229461501
+    { lat: "55.7869963", lon: "37.5225753" }, // 5154817852
+    { lat: "55.8154378", lon: "37.4951996" }, // 6777031378
+    { lat: "55.7318295", lon: "37.6085418" }, // 6943361882
+    { lat: "55.7360477", lon: "37.6271375" }, // 938070115
+    { lat: "55.7498802", lon: "37.5648874" }, // 4560019783
+    { lat: "55.7757235", lon: "37.4976773" }, // 4844411022
+    { lat: "55.7594251", lon: "37.5970263" }, // 7640415431
+];
+
+export const startTeamsAndRoutes : any = {
+    1: {
+        teamId: 1,
+        routeRound: 0,
+        startPoint: startNodeCoords[0],
+        routePoints: [startNodeCoords[0]],
+    },
+    2: {
+        teamId: 2,
+        routeRound: 0,
+        startPoint: startNodeCoords[1],
+        routePoints: [startNodeCoords[1]],
+    },
+    3: {
+        teamId: 3,
+        routeRound: 0,
+        startPoint: startNodeCoords[2],
+        routePoints: [startNodeCoords[2]],
+    },
+    4: {
+        teamId: 4,
+        routeRound: 0,
+        startPoint: startNodeCoords[3],
+        routePoints: [startNodeCoords[3]],
+    },
+    5: {
+        teamId: 5,
+        routeRound: 0,
+        startPoint: startNodeCoords[4],
+        routePoints: [startNodeCoords[4]],
+    },
+    6: {
+        teamId: 6,
+        routeRound: 0,
+        startPoint: startNodeCoords[5],
+        routePoints: [startNodeCoords[5]],
+    },
+    7: {
+        teamId: 7,
+        routeRound: 0,
+        startPoint: startNodeCoords[6],
+        routePoints: [startNodeCoords[6]],
+    },
+    8: {
+        teamId: 8,
+        routeRound: 0,
+        startPoint: startNodeCoords[7],
+        routePoints: [startNodeCoords[7]],
+    },
+    9: {
+        teamId: 9,
+        routeRound: 0,
+        startPoint: startNodeCoords[8],
+        routePoints: [startNodeCoords[8]],
+    },
+    10: {
+        teamId: 10,
+        routeRound: 0,
+        startPoint: startNodeCoords[9],
+        routePoints: [startNodeCoords[9]],
+    },
+};
+
 export const mockCarRoutes = [
 {'car_id': 1, 'atms': [4871521422, 4872597421, 2140237416, 6777023383, 6777070309, 6777023385, 4728957727, 7669855530, 3541486188, 8237624718, 6140344622, 6140344623, 6171249281, 2560452107, 6503797885, 6503797886, 9221097231, 12188595915, 3007434083, 1758067323, 1758067322, 6777059082, 2627662764, 3806834364, 1203193430, 924267480, 6769113486, 6769113595, 937713832, 3043881936, 938070115, 2590816084, 2583161219, 514169772, 1728779782, 6633733371, 4870352361, 6944280773, 4703535202, 6777019579, 4693441291, 4964043423, 1579582737, 1579582736, 6364967723, 11477279180, 11477263262, 8672487736], 'route': [266729320, 966977035, 1118302939, 969292214, 3239600929, 3148067838, 3158097652, 5955465293, 794161815, 1185020333, 765968879, 835550143, 7235626676, 272710750, 614464900, 2946337642, 6669840204, 2668343816, 198273555, 924267359, 244034087, 722212192, 5300042683, 5299356344, 2590816082, 1074003068, 178128666, 1114115509, 4895858853, 11365133490, 1872474025, 4511057817, 5361370048, 6455928270, 8842482119, 12157275843, 8672487738, 266729320], 'route_time': 28100},
 {'car_id': 2, 'atms': [4904836626, 6046142494, 4207884489, 1202220890, 4960497813, 9494695518, 2625460126, 6777070194, 5208111822, 1817510200, 9287137636, 7762570402, 7074821819, 1374552908, 1286587306, 6777084613, 2321688535, 2953468322, 5702925535, 3398360838, 9718286494, 4318697446, 2627597736, 3404487741, 4324874281, 4023618520, 7159408620, 1885193738, 3583952360, 1286586921, 11481235075, 11481235076, 8405792368, 8006896665, 9221097090, 9221089949, 6769113594, 7670717739, 6777061147, 9221096923, 7126057126, 5022331923, 10288133351, 10288133349], 'route': [266729320, 1705483807, 1234190752, 1381969231, 4929462105, 538159603, 1451244292, 1964710829, 1492413714, 652514715, 614104230, 250557164, 997634442, 1644037557, 12199699317, 1323899243, 1907467829, 5909715676, 1017783930, 11135203530, 946558763, 481345376, 4324874276, 2187180647, 1438127689, 253389150, 10235365334, 7952688484, 11481058288, 10563070009, 3970759892, 3959113611, 2411360433, 1844386353, 2621564611, 244034087, 5348835262, 2684993925, 1421100360, 1274134982, 266729320], 'route_time': 27727},
@@ -30,7 +106,8 @@ export const mockCarRoutes = [
 {'car_id': 24, 'atms': [1229461501, 12247899617, 5218798144, 1274623215, 2627628649, 9221096730], 'route': [266729320, 1378047118, 7326254145, 5218798146, 1314765628, 4244049684, 3369875354, 266729320], 'route_time': 4777}
 ];
 
-export const teamsForSelect: SelectItem[] = mockCarRoutes.map(element => ({value: element.car_id.toString(), label: `Команда ${element.car_id}`}));
+// export const teamsForSelect: SelectItem[] = mockCarRoutes.map(element => ({value: element.car_id.toString(), label: `Команда ${element.car_id}`}));
+export const teamsForSelect: SelectItem[] = Object.keys(startTeamsAndRoutes).map(element => ({value: startTeamsAndRoutes[element].teamId.toString(), label: `Команда ${startTeamsAndRoutes[element].teamId}`}));
 
 export const getAtmIndex = (carId: number, routeNode: number) => {
     return mockCarRoutes[carId - 1].route.indexOf(routeNode);
