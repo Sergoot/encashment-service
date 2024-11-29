@@ -11,14 +11,10 @@ class Capacity(BaseModel):
     max: int
 
 
-class AtmCapacity(BaseModel):
-    priem: Capacity
-    vidacha: Capacity
-
-
 class AtmCreate(BaseModel):
+    osm_id: int
     coords: Coords
-    capacity: AtmCapacity
+    capacity: Capacity
 
 
 class AtmModel(AtmCreate):
@@ -26,9 +22,7 @@ class AtmModel(AtmCreate):
 
 
 class ChangeAtmCapacity(BaseModel):
-    id: int
-    priem: float
-    vidacha: float
+    money_current: float
 
 class BaseResponse(BaseModel):
     status: bool

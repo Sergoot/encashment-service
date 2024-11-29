@@ -2,6 +2,8 @@ import abc
 from dataclasses import dataclass
 from typing import Any, Protocol, TypeAlias
 
+from .commands import ComputeRouteCommand
+
 
 class ATMClient(Protocol):
     async def get_atms(self, query_data: dict[str, Any]) -> ...:
@@ -23,12 +25,15 @@ class ApiClient(Protocol):
     async def post(self, url: str, data: dict) -> dict:
         pass
 
+    async def patch(self, url: str, data: dict) -> dict:
+        pass
+    
 
 @dataclass
 class RouteResponse:
-    routes: list[list[float]]
+    next_step: Any
 
 
 class IComputeRoute(abc.ABC):
-    async def execute(self, encash_team_id: int) -> RouteResponse:
+    async def execute(self, command: ComputeRouteCommand) -> RouteResponse:
         ...
