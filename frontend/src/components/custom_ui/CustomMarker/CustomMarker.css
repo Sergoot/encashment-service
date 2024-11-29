@@ -1,0 +1,26 @@
+/* Стили для кастомного попапа */
+.atm-popup-container {
+
+}
+
+/* Стили для текста в попапе */
+.atm-popup-text {
+
+}
+
+.leaflet-popup-content-wrapper {
+    background-color: #242424;
+    color: #fcfcfc;
+}
+
+.leaflet-popup-content-wrapper .leaflet-popup-content {
+    font-weight: 600;
+}
+
+.leaflet-popup-tip-container {
+
+}
+
+.leaflet-popup-tip {
+    background-color: #242424;
+}
