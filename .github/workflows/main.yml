@@ -25,9 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+      - uses: stefanzweifel/git-auto-commit-action@v5
       - name: Set up Python environment
         uses: actions/setup-python@v2
         with:
@@ -36,10 +37,4 @@ jobs:
         run: pip install lazydocs mkdocs mkdocs-awesome-pages-plugin
       - name: build docs
         run: chmod +x build-docs.sh && ./build-docs.sh
-      - name: Auto-commit
-        uses: cdssnc/auto-commit-github-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        with:
-          args: This is an auto-commit
 
