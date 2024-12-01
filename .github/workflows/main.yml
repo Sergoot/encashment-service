@@ -28,7 +28,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-      - uses: stefanzweifel/git-auto-commit-action@v5
       - name: Set up Python environment
         uses: actions/setup-python@v2
         with:
@@ -37,4 +36,4 @@ jobs:
         run: pip install lazydocs mkdocs mkdocs-awesome-pages-plugin
       - name: build docs
         run: chmod +x build-docs.sh && ./build-docs.sh
-
+      - uses: stefanzweifel/git-auto-commit-action@v5
