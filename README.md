@@ -1,5 +1,5 @@
 # Encashment Service
-# ВЕРСИЯ 0.0.1
+##### v0.0.1
 Моно-репозиторий со всеми сервисами проекта
 
 Scrum: https://sergeylyutavin22.kaiten.ru/space/449927

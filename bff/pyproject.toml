@@ -13,6 +13,9 @@ aiohttp = "^3.10.10"
 pydantic-settings = "^2.5.2"
 pytest = "^8.3.3"
 pytest-asyncio = "^0.24.0"
+lazydocs = "^0.4.8"
+mkdocs = "^1.6.1"
+mkdocs-awesome-pages-plugin = "^2.9.3"
 
 
 [build-system]
