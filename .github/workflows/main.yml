@@ -32,4 +32,4 @@ jobs:
       - name: Install dependencies
         run: pip install lazydocs mkdocs mkdocs-awesome-pages-plugin
       - name: Deploy docs
-        run: ./build-docs.sh && mkdocs gh-deploy --force
+        run: chmod +x build-docs.sh && ./build-docs.sh && mkdocs gh-deploy --force
