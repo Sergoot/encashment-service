@@ -37,7 +37,7 @@ jobs:
       - name: build docs
         run: chmod +x build-docs.sh && ./build-docs.sh
       - name: Auto-commit
-        uses: docker://cdssnc/auto-commit-github-action
+        uses: cdssnc/auto-commit-github-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
