@@ -21,8 +21,10 @@ jobs:
         run: pytest atm/tests
 
   docs:
+    
     runs-on: ubuntu-latest
     steps:
+      - uses: stefanzweifel/git-auto-commit-action@v5
       - name: Check out source repository
         uses: actions/checkout@v2
       - name: Set up Python environment
@@ -31,5 +33,6 @@ jobs:
           python-version: "3.10"
       - name: Install dependencies
         run: pip install lazydocs mkdocs mkdocs-awesome-pages-plugin
-      - name: Deploy docs
-        run: chmod +x build-docs.sh && ./build-docs.sh && mkdocs gh-deploy --force
+      - name: build docs
+        run: chmod +x build-docs.sh && ./build-docs.sh
+
