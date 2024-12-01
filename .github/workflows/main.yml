@@ -19,4 +19,10 @@ jobs:
 
       - name: Test atm
         run: pytest atm/tests
-          
+  
+      - name: Merge PR
+        if: github.event.pull_request.merged == false && success()
+        uses: peter-evans/merge-pull-request@v3
+        with:
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
