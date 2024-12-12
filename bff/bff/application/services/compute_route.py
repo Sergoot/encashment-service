@@ -18,17 +18,30 @@ class ComputeRoute(IComputeRoute):
             "radius": command.radius,
         }
     
-    
     async def execute(self, command: ComputeRouteCommand) -> RouteResponse:
+        attempts_to_get_atms = 3
         atm_response = await self.atm_client.get(
             "api/v1/atm/closest", 
             query_data=self._build_query(command)
         )
+        if not atm_response:
+            for _ in range(attempts_to_get_atms):
+                command.radius = int(command.radius*1.5)
+                if fallback_response := await self.atm_client.get(
+                    "api/v1/atm/closest", 
+                    query_data=self._build_query(command)
+                ):
+                    atm_response = fallback_response
+                    break
+            else:
+                return RouteResponse(next_step="FINAL")
+
         algo_request = {
             "current_lat": command.current_lat,
             "current_long": command.current_long,
             "atms": atm_response 
         }
+            
         next_step_response = await self.algo_client.post("compute/next", data=algo_request)
         await self.atm_client.patch(
             f"api/v1/atm/{next_step_response['id']}",

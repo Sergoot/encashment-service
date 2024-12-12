@@ -38,10 +38,12 @@ class AtmRepository:
     
     async def get_atms_by_radius_to_lat_long(self, lat: float, long: float, radius: int = 100) -> list[Atm]:
         ranges = get_radius_range(lat=lat, long=long, radius=radius)
-        res = await self.db.execute(
-            select(Atm) \
+        
+        query = select(Atm) \
             .where(Atm.long.between(ranges["long_min"], ranges["long_max"])) \
             .where(Atm.lat.between(ranges["lat_min"], ranges["lat_max"])) \
+            .where(Atm.money_current != Atm.money_max) \
             .order_by(Atm.money_current)
-        )
+        res = await self.db.execute(query) 
+
         return res.scalars().all()
