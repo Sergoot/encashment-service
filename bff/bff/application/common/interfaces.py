@@ -1,21 +1,8 @@
 import abc
 from dataclasses import dataclass
-from typing import Any, Protocol, TypeAlias
+from typing import Any, Protocol
 
 from .commands import ComputeRouteCommand
-
-
-class ATMClient(Protocol):
-    async def get_atms(self, query_data: dict[str, Any]) -> ...:
-        pass
-
-
-Routes: TypeAlias = list[list[float]]
-
-
-class AlgoClient(Protocol):
-    async def get_atms(self, query_data: dict[str, Any]) -> Routes:
-        pass
 
 
 class ApiClient(Protocol):

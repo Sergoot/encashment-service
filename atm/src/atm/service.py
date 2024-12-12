@@ -20,8 +20,8 @@ class AtmService:
         # Генерация максимальной вместимости бункеров по нормальному распределению в пределах диапазона
         max_capacity_bin1 = max(MIN_MAX_CAPACITY, min(random.gauss(MU_MAX, SIGMA_MAX), MAX_MAX_CAPACITY))
 
-        # Генерация текущей заполненности от 0 до max по нормальному распределению
-        filling_bin1 = max(0, min(random.gauss(max_capacity_bin1 / 2, max_capacity_bin1 / 4), max_capacity_bin1))
+        # Генерация текущей заполненности от 0 до max-100 по нормальному распределению
+        filling_bin1 = max(0, min(random.gauss(max_capacity_bin1 / 2, max_capacity_bin1 / 4), max_capacity_bin1-100))
 
         return Capacity(
             current=round(filling_bin1),

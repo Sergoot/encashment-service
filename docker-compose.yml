@@ -43,13 +43,13 @@ services:
     container_name: algo
     ports:
       - $ALGO_PORT:$ALGO_PORT
-  frontend:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - $FRONT_PORT:$FRONT_PORT
+  # frontend:
+  #   build:
+  #     context: frontend
+  #     dockerfile: Dockerfile
+  #   container_name: frontend
+  #   ports:
+  #     - $FRONT_PORT:$FRONT_PORT
 
 volumes:
   postgres_data:
