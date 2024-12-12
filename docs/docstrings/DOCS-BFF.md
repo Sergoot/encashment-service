@@ -21,8 +21,6 @@
 ## Classes
 
 - [`commands.ComputeRouteCommand`](./bff.application.common.commands.md#class-computeroutecommand): ComputeRouteCommand(current_lat: float, current_long: float, radius: int)
-- [`interfaces.ATMClient`](./bff.application.common.interfaces.md#class-atmclient)
-- [`interfaces.AlgoClient`](./bff.application.common.interfaces.md#class-algoclient)
 - [`interfaces.ApiClient`](./bff.application.common.interfaces.md#class-apiclient)
 - [`interfaces.IComputeRoute`](./bff.application.common.interfaces.md#class-icomputeroute)
 - [`interfaces.RouteResponse`](./bff.application.common.interfaces.md#class-routeresponse): RouteResponse(next_step: Any)
